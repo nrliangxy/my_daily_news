@@ -13,5 +13,7 @@ def run_tornado_server(host, port):
 
 
 if __name__ == '__main__':
-    run_tornado_server(os.environ.get("PATSNAP360_SPIDER_WEBUI_HOST", "0.0.0.0"),
-                       os.environ.get("PATSNAP360_SPIDER_WEBUI_PORT", 5555))
+    app = create_default_app()
+    # run_tornado_server(os.environ.get("PATSNAP360_SPIDER_WEBUI_HOST", "0.0.0.0"),
+    #                    os.environ.get("PATSNAP360_SPIDER_WEBUI_PORT", 5555))
+    app.run(host="0.0.0.0", port=5555, debug=True)

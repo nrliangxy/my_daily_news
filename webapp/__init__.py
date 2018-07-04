@@ -23,7 +23,9 @@ def create_default_app(profile=False, debug=False):
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
     # 初始化蓝图
     from webapp.views.indexView import index_bp
+    from webapp.views.quailityView import quality_bp
     app.register_blueprint(index_bp)
+    app.register_blueprint(quality_bp)
 
     # 通用视图注册
     register_common_view(app)
