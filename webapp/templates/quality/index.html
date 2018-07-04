@@ -1,0 +1,117 @@
+{% extends "default/base.html" %}
+{% block content_body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-primary">
+                        <h4 class="card-title">条件编辑</h4>
+                        <p class="card-category">请填写过滤条件</p>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for("quality_view.query") }}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="dataTypeSelect">数据源</label>
+                                        <select class="form-control" id="dataTypeSelect" name="data_type">
+                                            {% for source in data_source_list %}
+                                                <option value="{{ source }}">{{ source }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="text-field">查询字段</label>
+                                        <input type="text" class="form-control" id="text-field" name="field">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-startswith">(可选条件)起始字符(startswith)</label>
+                                        <input type="text" class="form-control" id="text-startswith" name="startswith">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-endswith">(可选条件)结束字符(startswith)</label>
+                                        <input type="text" class="form-control" id="text-endswith" name="endswith">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-startword">(可选条件)开始单词(start word)</label>
+                                        <input type="text" class="form-control" id="text-startword" name="startword">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-endword">(可选条件)结束单词(end word)</label>
+                                        <input type="text" class="form-control" id="text-endword" name="endword">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-existsword">(可选条件)存在单词(existsword)</label>
+                                        <input type="text" class="form-control" id="text-existsword" name="existsword">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-minsize">(可选条件)最小长度</label>
+                                        <input type="text" class="form-control" id="text-minsize" name="minsize">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-maxsize">(可选条件)最大长度</label>
+                                        <input type="text" class="form-control" id="text-minsize" name="maxsize">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-mintime">(可选条件)最小时间yy-mm-dd</label>
+                                        <input type="text" class="form-control" id="text-mintime" name="mintime">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class='bmd-label-floating' for="text-maxtime">(可选条件)最大时间yy-mm-dd</label>
+                                        <input type="text" class="form-control" id="text-maxtime" name="maxtime">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary pull-right">提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            // Javascript method's body can be found in assets/js/demos.js
+            md.initDashboardPageCharts();
+        });
+    </script>
+{% endblock %}

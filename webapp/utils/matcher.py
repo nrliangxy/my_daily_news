@@ -80,11 +80,13 @@ class FieldMatcher:
     def count(self):
         pipeline = self.gen_pipeline()
         pipeline.append({"$count": self._count})
+        print(pipeline)
         for line in self._collection.aggregate(pipeline):
             return line[self._count]
 
     def apply(self, limit=10):
         pipeline = self.gen_pipeline(limit)
+        print(pipeline)
         return [r for r in self._collection.aggregate(pipeline)]
 
     def gen_pipeline(self, limit=None) -> list:
@@ -100,19 +102,14 @@ class FieldMatcher:
         return pipeline
 
     def explain(self, limit=10):
-        print(self._pipeline)
         pipeline = self.gen_pipeline(limit)
         exp = self._db.command("aggregate", self._collection_name, pipeline=pipeline, explain=True)
-        print(exp['stages'][0]['$cursor'])
         return exp['stages'][0]['$cursor']["query"]
 
 
 if __name__ == '__main__':
-    m = FieldMatcher("title", create_default_client(), "fundedresearch", "cordis")
-    m.match_char_start("hello").match_char_end("y").between_length(10)
-    print(m._pipeline)
+    m = FieldMatcher("title", create_default_client(), "fundedresearch", "nsf")
+    m.between_length(10)
     count = m.count()
     records = m.apply(10)
     print(records)
-    print(count)
-    print(m.explain(10))
