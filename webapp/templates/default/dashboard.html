@@ -1,4 +1,8 @@
 {% extends "default/base.html" %}
+{% block navbar_brand %}
+    <a class="navbar-brand" href="#">Dashboard</a>
+{% endblock %}
+
 {% block content_body %}
     <div class="container-fluid">
           <div class="row">
@@ -414,6 +418,7 @@
           </div>
         </div>
 {% endblock %}
+
 {% block script %}
   <script>
     $(document).ready(function() {

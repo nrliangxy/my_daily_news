@@ -90,7 +90,9 @@ class FieldMatcher:
         return [r for r in self._collection.aggregate(pipeline)]
 
     def gen_pipeline(self, limit=None) -> list:
-        pipeline = []
+        pipeline = [
+            {'$match': {"$and": [{"title": {"$exists": True}}, {"title": {"$ne": None}}]}}
+        ]
         pipeline.extend(self._pipeline)
         if limit:
             pipeline.append({

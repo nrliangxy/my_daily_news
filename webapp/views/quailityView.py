@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
 from webapp.utils.matcher import FieldMatcher, create_default_client
+from webapp.utils.tools import session_load
 
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
 
@@ -9,6 +10,7 @@ def error_field_check_403(error_msg):
 
 
 @quality_bp.route('/index', methods=["GET", "POST"])
+@session_load("quality")
 def quality_index():
     data_type_list = [
         "fundedresearch",
@@ -21,6 +23,7 @@ def quality_index():
 
 
 @quality_bp.route('/query', methods=["GET", "POST"])
+@session_load("quality")
 def query():
     print(request.form)
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
@@ -44,8 +47,6 @@ def query():
         "query": m.explain(10),
         "field": field,
     }
-    if info["count"] == 0:
-        info.update({"msg": "反思一下为什么没结果！"})
     return render_template("quality/quality.html", info=info, limit=10,
                            records=records)
 
