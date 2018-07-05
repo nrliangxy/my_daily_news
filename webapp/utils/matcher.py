@@ -1,7 +1,7 @@
 import re
 import pymongo
 from urllib.parse import quote_plus
-
+import arrow
 
 def create_default_client():
     uri = "mongodb://%s:%s@%s" % (
@@ -91,7 +91,7 @@ class FieldMatcher:
 
     def gen_pipeline(self, limit=None) -> list:
         pipeline = [
-            {'$match': {"$and": [{"title": {"$exists": True}}, {"title": {"$ne": None}}]}}
+            {'$match': {"$and": [{self._field: {"$exists": True}}, {self._field: {"$ne": None}}]}}
         ]
         pipeline.extend(self._pipeline)
         if limit:
@@ -109,9 +109,35 @@ class FieldMatcher:
         return exp['stages'][0]['$cursor']["query"]
 
 
-if __name__ == '__main__':
-    m = FieldMatcher("title", create_default_client(), "fundedresearch", "nsf")
-    m.between_length(10)
-    count = m.count()
-    records = m.apply(10)
-    print(records)
+class DateMatcher(FieldMatcher):
+    def __init__(self, field, client: pymongo.MongoClient, db, collection):
+        super().__init__(field, client, db, collection)
+        if field.endswith("_ts"):
+            self._field = field
+
+    def _valid_method(self, date):
+        if '-' not in date:
+            if 57600 < int(date) < 4102502400:
+                return date
+        else:
+            time = '-'.join([i if len(i) != 1 else '0' + str(i) for i in date.split('-')])
+            return arrow.get(time).timestamp
+
+    def between_date(self, min_date=None, max_date=None):
+        self._pipeline.append(
+            {"$project": {
+                self._field: 1
+            }}
+        )
+        if min_date:
+            min_date = self._valid_method(min_date)
+            self._pipeline.append(
+                {"$match": {self._field: {"$gt": min_date}}
+                 }
+            )
+        if max_date:
+            max_date = self._valid_method(max_date)
+            self._pipeline.append(
+                {"$match": {self._field: {"$lte": max_date}}}
+            )
+        return self

@@ -14,4 +14,4 @@ def run_tornado_server(host, port):
 
 if __name__ == '__main__':
     app = create_default_app()
-    app.run(host="0.0.0.0", port=5555, debug=True)
+    app.run(host="0.0.0.0", port=5556, debug=True)
