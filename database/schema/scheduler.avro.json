@@ -1,0 +1,26 @@
+{
+  "namespace": "com.patsnap360.search.dbmigration",
+  "type": "record",
+  "name": "test",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "favorite_number",
+      "type": [
+        "int",
+        "null"
+      ]
+    },
+    {
+      "name": "favorite_color",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  ],
+  "doc:": "A basic schema for storing news data"
+}

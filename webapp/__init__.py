@@ -1,9 +1,18 @@
 import time
 import base64
+import atexit
 
 from flask import Flask, g, request, Markup
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from webapp.log import create_logger, generate_logger_handler
+from backend.task import BackgroundTaskManager
+from database import create_default_client
+
+# 初始化后台任务
+mongo_client = create_default_client()
+bg_manager = BackgroundTaskManager(mongo_client)
+bg_manager.start()
+atexit.register(lambda: bg_manager.shutdown())
 
 
 def create_default_app(profile=False, debug=False):
@@ -24,8 +33,10 @@ def create_default_app(profile=False, debug=False):
     # 初始化蓝图
     from webapp.views.indexView import index_bp
     from webapp.views.quailityView import quality_bp
+    from webapp.views.schedulerView import sche_bp
     app.register_blueprint(index_bp)
     app.register_blueprint(quality_bp)
+    app.register_blueprint(sche_bp)
 
     # 通用视图注册
     register_common_view(app)
