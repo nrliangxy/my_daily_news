@@ -1,4 +1,3 @@
-import re
 import pymongo
 from urllib.parse import quote_plus
 
