@@ -90,13 +90,11 @@ class FieldMatcher:
     def count(self):
         pipeline = self.gen_pipeline()
         pipeline.append({"$count": self._count})
-        print(pipeline)
         for line in self._collection.aggregate(pipeline):
             return line[self._count]
 
     def apply(self, limit=10):
         pipeline = self.gen_pipeline(limit)
-        print(pipeline)
         return [r for r in self._collection.aggregate(pipeline)]
 
     def gen_pipeline(self, limit=None) -> list:
@@ -161,16 +159,4 @@ class DateMatcher(FieldMatcher):
         return self
 
 
-if __name__ == '__main__':
-    # m = FieldMatcher("title", create_default_client(), "fundedresearch", "nsf")
-    # m.between_length(10)
-    # count = m.count()
-    # records = m.apply(10)
-    # print(records)
-    m = DateMatcher('open_ts', 'title', create_default_client(), "fundedresearch", "nsf")
-    m.between_date('1990-4-6','1990-4-9')
-    count = m.count()
-    print(count)
-    records = m.apply(70000)
-    print(records)
 

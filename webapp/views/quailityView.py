@@ -25,8 +25,6 @@ def quality_index():
 @quality_bp.route('/query', methods=["GET", "POST"])
 @session_load("quality")
 def query():
-    print(request.form)
-    print('='*77)
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
 
     db = request.form.get("db")
@@ -40,14 +38,11 @@ def query():
     other_field = form_data.pop("other_field") if form_data.get("other_field") else None
     if len(form_data) == 0:
         return error_field_check_403("请至少提供一个查询条件")
-    print('-'*88)
-    print(form_data)
     if form_data.get('mintime') or form_data.get('maxtime'):
         m = generate_date(field, other_field, create_default_client(), data_type, "nsf", form_data)
     else:
         m = generate_matcher(field, other_field, create_default_client(), data_type, "nsf", form_data)
     records = m.apply(10)
-    print(records)
     info = {
         "count": m.count() or 0,
         "query": m.explain(10),
@@ -56,11 +51,14 @@ def query():
     }
     return render_template("quality/quality.html", info=info, limit=10,
                            records=records)
+
+
 def generate_date(field, other_field, client, db, collection, rule_data):
     date = DateMatcher(field, other_field, client, db, collection)
     if rule_data.get('mintime') or rule_data.get('maxtime'):
         date.between_date(rule_data.get('mintime'), rule_data.get('maxtime'))
     return date
+
 
 def generate_matcher(field, other_field, client, db, collection, rule_data) -> FieldMatcher:
     m = FieldMatcher(field, other_field, client, db, collection)
