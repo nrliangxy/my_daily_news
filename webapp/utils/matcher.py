@@ -125,7 +125,6 @@ class DateMatcher(FieldMatcher):
         if field.endswith("_ts"):
             self._field = field
 
-    
     def _valid_method(self, date):
         if '-' not in date:
             if 57600 < int(date) < 4102502400:
@@ -133,7 +132,6 @@ class DateMatcher(FieldMatcher):
         else:
             time = '-'.join([i if len(i) != 1 else '0' + str(i) for i in date.split('-')])
             return arrow.get(time).timestamp
-
 
     def between_date(self, min_date=None, max_date=None):
         if self._other_field:
@@ -162,6 +160,7 @@ class DateMatcher(FieldMatcher):
             )
         return self
 
+
 if __name__ == '__main__':
     # m = FieldMatcher("title", create_default_client(), "fundedresearch", "nsf")
     # m.between_length(10)
@@ -174,3 +173,4 @@ if __name__ == '__main__':
     print(count)
     records = m.apply(70000)
     print(records)
+
