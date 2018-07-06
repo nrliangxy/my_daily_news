@@ -49,6 +49,9 @@
                                     <th>
                                         {{ info["field"] | capitalize() }}
                                     </th>
+                                    <th>
+                                        {{ info["other_field"] | capitalize() }}
+                                    </th>
                                     </thead>
                                     <tbody>
                                     {% for r in records %}
@@ -58,6 +61,9 @@
                                             </td>
                                             <td>
                                                 {{ r[info["field"]] }}
+                                            </td>
+                                            <td>
+                                                {{ r[info["other_field"]] }}
                                             </td>
                                         </tr>
                                     {% endfor %}

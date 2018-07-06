@@ -10,8 +10,9 @@ def create_default_client():
 
 
 class FieldMatcher:
-    def __init__(self, field, client: pymongo.MongoClient, db, collection):
+    def __init__(self, field, other_field, client: pymongo.MongoClient, db, collection):
         self._field = field
+        self._other_field = other_field
         self._client = client
         self._db_name = db
         self._db = self._client[self._db_name]
@@ -63,10 +64,19 @@ class FieldMatcher:
         return self
 
     def between_length(self, min_length=None, max_length=None):
-        self._pipeline.append({
-            "$project": {self._field: 1,
-                         "length": {"$strLenCP": "$%s" % self._field}}
-        })
+        if self._other_field:
+            self._pipeline.append({
+                "$project": {
+                    self._field: 1,
+                    "length": {"$strLenCP": "$%s" % self._field},
+                self._other_field: 1}}
+            )
+        else:
+            self._pipeline.append({
+                "$project": {
+                             self._field: 1,
+                             "length": {"$strLenCP": "$%s" % self._field}}}
+            )
         if min_length:
             self._pipeline.append({
                 "$match": {"length": {"$gte": min_length}}
@@ -110,8 +120,8 @@ class FieldMatcher:
 
 
 class DateMatcher(FieldMatcher):
-    def __init__(self, field, client: pymongo.MongoClient, db, collection):
-        super().__init__(field, client, db, collection)
+    def __init__(self, field, other_field, client: pymongo.MongoClient, db, collection):
+        super().__init__(field, other_field, client, db, collection)
         if field.endswith("_ts"):
             self._field = field
 
@@ -124,11 +134,19 @@ class DateMatcher(FieldMatcher):
             return arrow.get(time).timestamp
 
     def between_date(self, min_date=None, max_date=None):
-        self._pipeline.append(
-            {"$project": {
-                self._field: 1
-            }}
-        )
+        if self._other_field:
+            self._pipeline.append({
+                "$project": {
+                    self._field: 1,
+                    self._other_field :1
+                }}
+            )
+        else:
+            self._pipeline.append({
+                "$project": {
+                    self._field: 1,
+                    }}
+            )
         if min_date:
             min_date = self._valid_method(min_date)
             self._pipeline.append(
@@ -141,3 +159,18 @@ class DateMatcher(FieldMatcher):
                 {"$match": {self._field: {"$lte": max_date}}}
             )
         return self
+
+
+if __name__ == '__main__':
+    # m = FieldMatcher("title", create_default_client(), "fundedresearch", "nsf")
+    # m.between_length(10)
+    # count = m.count()
+    # records = m.apply(10)
+    # print(records)
+    m = DateMatcher('open_ts', 'title', create_default_client(), "fundedresearch", "nsf")
+    m.between_date('1990-4-6','1990-4-9')
+    count = m.count()
+    print(count)
+    records = m.apply(70000)
+    print(records)
+

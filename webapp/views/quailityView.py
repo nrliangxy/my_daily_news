@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request
-from webapp.utils.matcher import FieldMatcher, create_default_client
+from webapp.utils.matcher import FieldMatcher, create_default_client, DateMatcher
 from webapp.utils.tools import session_load
 
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
@@ -26,6 +26,7 @@ def quality_index():
 @session_load("quality")
 def query():
     print(request.form)
+    print('='*77)
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
 
     db = request.form.get("db")
@@ -36,23 +37,33 @@ def query():
     if form_data.get("field") is None:
         return error_field_check_403("查询字段未提供")
     field = form_data.pop("field")
-
+    other_field = form_data.pop("other_field") if form_data.get("other_field") else None
     if len(form_data) == 0:
         return error_field_check_403("请至少提供一个查询条件")
-    m = generate_matcher(field, create_default_client(), data_type, "nsf", form_data)
-
+    print('-'*88)
+    print(form_data)
+    if form_data.get('mintime') or form_data.get('maxtime'):
+        m = generate_date(field, other_field, create_default_client(), data_type, "nsf", form_data)
+    else:
+        m = generate_matcher(field, other_field, create_default_client(), data_type, "nsf", form_data)
     records = m.apply(10)
+    print(records)
     info = {
         "count": m.count() or 0,
         "query": m.explain(10),
         "field": field,
+        "other_field": other_field
     }
     return render_template("quality/quality.html", info=info, limit=10,
                            records=records)
+def generate_date(field, other_field, client, db, collection, rule_data):
+    date = DateMatcher(field, other_field, client, db, collection)
+    if rule_data.get('mintime') or rule_data.get('maxtime'):
+        date.between_date(rule_data.get('mintime'), rule_data.get('maxtime'))
+    return date
 
-
-def generate_matcher(field, client, db, collection, rule_data) -> FieldMatcher:
-    m = FieldMatcher(field, client, db, collection)
+def generate_matcher(field, other_field, client, db, collection, rule_data) -> FieldMatcher:
+    m = FieldMatcher(field, other_field, client, db, collection)
     if rule_data.get("startswith"):
         m.match_char_start(rule_data["startswith"])
     if rule_data.get("endswith"):
