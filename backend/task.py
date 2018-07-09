@@ -98,6 +98,7 @@ class SchedulerTaskManager:
         self._scheduled_task = {}
 
     def start_command_process(self, command_id, command):
+        command = ['nohup'] + command
         process = psutil.Popen(command)
         self._scheduled_task.setdefault(command_id, process)
 
