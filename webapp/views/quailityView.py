@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request
-from webapp.utils.matcher import FieldMatcher, create_default_client, DateMatcher
+from webapp import mongo_client
+from webapp.utils.matcher import FieldMatcher, DateMatcher
 from webapp.utils.tools import session_load
 
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
@@ -13,10 +14,16 @@ def error_field_check_403(error_msg):
 @session_load("quality")
 def quality_index():
     data_type_list = [
-        "fundedresearch",
+        "dict",
+        "event",
+        "event_news",
+        "funded_research",
         "grant",
+        "investment",
+        "marketing_report",
         "news",
         "organization",
+        "person",
         "techofferring"
     ]
     return render_template("quality/index.html", data_source_list=data_type_list)
@@ -26,8 +33,7 @@ def quality_index():
 @session_load("quality")
 def query():
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
-
-    db = request.form.get("db")
+    db = request.form.get("db", "360_rawdata")
     if form_data.get("data_type") is None:
         return error_field_check_403("数据源未提供")
     data_type = form_data.pop("data_type")
@@ -39,9 +45,9 @@ def query():
     if len(form_data) == 0:
         return error_field_check_403("请至少提供一个查询条件")
     if form_data.get('mintime') or form_data.get('maxtime'):
-        m = generate_date(field, other_field, create_default_client(), data_type, "nsf", form_data)
+        m = generate_date(field, other_field, mongo_client, db, data_type, form_data)
     else:
-        m = generate_matcher(field, other_field, create_default_client(), data_type, "nsf", form_data)
+        m = generate_matcher(field, other_field, mongo_client, db, data_type, form_data)
     records = m.apply(10)
     info = {
         "count": m.count() or 0,

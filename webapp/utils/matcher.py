@@ -3,6 +3,7 @@ import pymongo
 from urllib.parse import quote_plus
 import arrow
 
+
 def create_default_client():
     uri = "mongodb://%s:%s@%s" % (
         quote_plus("root"), quote_plus("root360"), "192.168.44.101:27100")
@@ -69,13 +70,13 @@ class FieldMatcher:
                 "$project": {
                     self._field: 1,
                     "length": {"$strLenCP": "$%s" % self._field},
-                self._other_field: 1}}
+                    self._other_field: 1}}
             )
         else:
             self._pipeline.append({
                 "$project": {
-                             self._field: 1,
-                             "length": {"$strLenCP": "$%s" % self._field}}}
+                    self._field: 1,
+                    "length": {"$strLenCP": "$%s" % self._field}}}
             )
         if min_length:
             self._pipeline.append({
@@ -136,14 +137,14 @@ class DateMatcher(FieldMatcher):
             self._pipeline.append({
                 "$project": {
                     self._field: 1,
-                    self._other_field :1
+                    self._other_field: 1
                 }}
             )
         else:
             self._pipeline.append({
                 "$project": {
                     self._field: 1,
-                    }}
+                }}
             )
         if min_date:
             min_date = self._valid_method(min_date)
@@ -159,4 +160,8 @@ class DateMatcher(FieldMatcher):
         return self
 
 
-
+if __name__ == '__main__':
+    f = FieldMatcher("title", None, create_default_client(), "360_rawdata", "news")
+    f.match_char_start("abc").match_word_end("$")
+    print(f.count())
+    print(f.apply(10))
