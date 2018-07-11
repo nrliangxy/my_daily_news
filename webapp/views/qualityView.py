@@ -53,7 +53,6 @@ def query():
         "rule_type": rule_type,
         "rule_functions": valid_functions
     })
-
     data_quality_valid.delay(data_type, rule_name)
     return jsonify(result={
         "rule_name": rule_name,
@@ -75,7 +74,10 @@ def quality_report():
         reports = coll.find({"rule_name": rule_name}).sort([("create_time", -1)]).limit(1)
     reports = [i for i in reports]
     if len(reports) <= 0:
-        return error_field_check_403("规则%s运行中或不存在" % rule_name)
+        if mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name}):
+            return error_field_check_403("规则%s正在运行中，请稍后查询" % rule_name)
+        else:
+            return error_field_check_403("规则%s运行中或不存在" % rule_name)
     return render_template("quality/report.html", reports=reports)
 
 

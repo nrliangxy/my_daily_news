@@ -25,5 +25,23 @@ class TaskLog(Document):
     task_file_path = StringField(required=True)
 
 
+class QualityRule(Document):
+    meta = {
+        'collection': 'quality_rule'
+    }
+    rule_name = StringField(required=True, unique=True)
+    data_type = StringField(required=True)
+    rule_content = StringField(required=True)
+    rule_type = StringField(required=True)
+    rule_functions = ListField(required=True)
 
+
+class QualityReport(Document):
+    meta = {
+        'collection': 'quality_report'
+    }
+    cost_time = FloatField(required=True)
+    report = DictField()
+    create_time = DateTimeField()
+    rule_name = StringField()
 

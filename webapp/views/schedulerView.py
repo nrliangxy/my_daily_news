@@ -53,6 +53,7 @@ def scheduler_log():
     records, info = check_db()
     return render_template("scheduler/result_page.html", info=info, records=records)
 
+
 def show_task_name():
     return [obj.task_name for obj in TaskLog.objects]
 
