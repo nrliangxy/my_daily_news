@@ -1,0 +1,101 @@
+{% extends "default/base.html" %}
+{% block navbar_brand %}
+    <a class="navbar-brand" href="#">脚本log</a>
+{% endblock %}
+
+{% block content_body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-danger card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">info_outline</i>
+                        </div>
+                        <p class="card-category">总数</p>
+                        <h3 class="card-title">{{ info["count"] }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    {% if info['count'] == 0 %}
+                        <div class="bd-example" data-example-id="">
+                            <div class="card card-nav-tabs text-center">
+                                <div class="card-header card-header-primary">
+                                    啥都没查到
+                                </div>
+                                <div class="card-body">
+                                    <h4 class="card-title">真的啥都没查到</h4>
+                                    <p class="card-text">查询语句: <b>{{ info['query'] }}</b></p>
+                                    <a href="javascript:history.back()" class="btn btn-primary">返回</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card-header card-header-primary">
+                            <h4 class="card-title mt-0">部分结果(前{{ limit }}条)</h4>
+                            <p class="card-category">查询语句：{{ info['query'] }}</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class=" text-primary">
+                                    <th>
+                                        ID
+                                    </th>
+                                    <th>
+                                        START_TIME
+                                    </th>
+                                    <th>
+                                        {{ info["other_field"] | capitalize() }}
+                                    </th>
+                                    <th>
+                                        {{ info["status"] | capitalize() }}
+                                    </th>
+                                    <th>
+                                        FILE_PATH
+                                    </th>
+                                    </thead>
+                                    <tbody>
+                                    {% for r in records %}
+                                        <tr>
+                                            <td>
+                                                {{ r["task_id"] }}
+                                            </td>
+                                            <td>
+                                                {{ r["start_time"] }}
+                                            </td>
+                                            <td>
+                                                {{ r["task_name"] }}
+                                            </td>
+                                            <td>
+                                                {{ r["status"]}}
+                                            </td>
+                                            <td>
+                                                {{ r["task_file_path"]}}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        <a href="javascript:history.back()" class="btn btn-primary">返回</a>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            // Javascript method's body can be found in assets/js/demos.js
+            md.initDashboardPageCharts();
+        });
+    </script>
+{% endblock %}
