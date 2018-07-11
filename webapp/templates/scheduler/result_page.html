@@ -56,7 +56,10 @@
                                         {{ info["status"] | capitalize() }}
                                     </th>
                                     <th>
-                                        FILE_PATH
+                                        file_path
+                                    </th>
+                                    <th>
+                                        pid_num
                                     </th>
                                     </thead>
                                     <tbody>
@@ -76,6 +79,9 @@
                                             </td>
                                             <td>
                                                 {{ r["task_file_path"]}}
+                                            </td>
+                                            <td>
+                                                {{ r["pid_num"]}}
                                             </td>
                                         </tr>
                                     {% endfor %}

@@ -77,7 +77,7 @@ def show_live_process():
 def check_db(name=None):
     records = [
         {"task_id": task.task_id, "task_name": task.task_name, "start_time": task.start_time, "status": task.status,
-         "task_file_path": task.task_file_path} for task in TaskLog.objects]
+         "task_file_path": task.task_file_path, "pid_num": task.pid_num} for task in TaskLog.objects]
     if name:
         for i in records:
             if i['task_name'] == name:
