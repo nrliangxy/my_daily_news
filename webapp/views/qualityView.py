@@ -3,6 +3,7 @@ from webapp import mongo_client
 from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
 from database.schema import TABLE_SCHEMA
+from backend.celery_task import data_quality_valid
 
 
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
@@ -52,6 +53,8 @@ def query():
         "rule_type": rule_type,
         "rule_functions": valid_functions
     })
+
+    data_quality_valid.delay(data_type, rule_name)
     return jsonify(result={
         "rule_name": rule_name,
         "data_type": data_type,
@@ -72,7 +75,7 @@ def quality_report():
         reports = coll.find({"rule_name": rule_name}).sort([("create_time", -1)]).limit(1)
     reports = [i for i in reports]
     if len(reports) <= 0:
-        return error_field_check_403("规则%s不存在" % rule_name)
+        return error_field_check_403("规则%s运行中或不存在" % rule_name)
     return render_template("quality/report.html", reports=reports)
 
 

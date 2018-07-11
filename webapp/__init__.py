@@ -5,11 +5,16 @@ import atexit
 from flask import Flask, g, request, Markup
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from webapp.log import create_logger, generate_logger_handler
-from backend.task import BackgroundTaskManager
-from database import create_default_client
+from backend.task import BackgroundTaskManager, SchedulerTaskManager
+from database import create_default_client, init_mongonengin_connect
+
+# 初始化mongo服务
+mongo_client = create_default_client()
+init_mongonengin_connect()
 
 # 初始化后台任务
-mongo_client = create_default_client()
+stm_manager = SchedulerTaskManager(mongo_client)
+
 bg_manager = BackgroundTaskManager(mongo_client)
 bg_manager.start()
 atexit.register(lambda: bg_manager.shutdown())

@@ -1,22 +1,10 @@
 from flask import Blueprint, render_template, request
 from webapp.utils.tools import session_load
-from webapp import bg_manager
-import pymongo
-from uuid import uuid1
-from urllib.parse import quote_plus
-from database import TaskLog
-from backend.task import *
+from webapp import bg_manager, stm_manager
+from database.models import TaskLog, SchedulerTask
 
 sche_bp = Blueprint("sche_view", __name__, url_prefix="/scheduler")
 
-
-
-def create_default_client():
-    uri = "mongodb://%s:%s@%s" % (
-        quote_plus("root"), quote_plus("root360"), "192.168.44.101:27100")
-    return pymongo.MongoClient(uri)
-
-stm = SchedulerTaskManager(create_default_client())
 
 def error_field_check_403(error_msg):
     return render_template("error/403.html", error_msg=error_msg)
@@ -47,7 +35,7 @@ def scheduler_result():
         command_list = command.split()
     else:
         return error_field_check_403("没有输入相关命令")
-    stm.start_command_process(name, command_list)
+    stm_manager.start_command_process(name, command_list)
     
     try:
         show_live_process()
@@ -70,7 +58,7 @@ def show_task_name():
 
 
 def show_live_process():
-    stm.show_live_process(TaskLog)
+    stm_manager.show_live_process(TaskLog)
    
 
 

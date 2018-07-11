@@ -4,42 +4,20 @@ from mongoengine import *
 from urllib.parse import quote_plus
 
 
-def create_default_client():
+def create_default_client(username="root", password="root360"):
     uri = "mongodb://%s:%s@%s" % (
-        quote_plus("root"), quote_plus("root360"), "192.168.44.101:27100")
+        quote_plus(username), quote_plus(password), "192.168.44.101:27100")
     return pymongo.MongoClient(uri)
 
-# connect(db="manager", host='mongodb://root:root360@192.168.44.101:27100', username="root", password='root360')
-connect(
-    authentication_source= "admin",
-    username="root",
-    password='root360',
-    host='192.168.44.101',
-    port=27100,
-    db = "manager"
-)
-class SchedulerTask(Document):
-    """
-    任务类型：
-        定时任务
-        非定时任务
-    """
-    task_name = StringField(required=True, max_length=200)
-    task_type = StringField(required=True)
-    task_command = StringField()
-    task_trigger = StringField()
-    create_time = DateTimeField(default=datetime.datetime.utcnow())
 
-
-class TaskLog(Document):
-    task_name = StringField(required=True, unique=True)
-    task_id = StringField(required=True)
-    start_time = DateTimeField(default=datetime.datetime.now())
-    # RUNNING、FINISH、ERROR
-    status = StringField(required=True, default="RUNNING")
-    pid_num = IntField(required=True)
-    task_file_path = StringField(required=True)
-    
-    
-
+def init_mongonengin_connect(username="etl_user",
+                             password="etl360"):
+    connect(
+        authentication_source="admin",
+        username=username,
+        password=password,
+        host='192.168.44.101',
+        port=27100,
+        db="manager"
+    )
 

@@ -1,4 +1,3 @@
-import os
 from webapp import create_default_app
 from tornado.wsgi import WSGIContainer
 from tornado.httpserver import HTTPServer
@@ -13,5 +12,4 @@ def run_tornado_server(host, port):
 
 
 if __name__ == '__main__':
-    app = create_default_app()
-    app.run(host="0.0.0.0", port=5557, debug=True)
+    run_tornado_server(host="0.0.0.0", port=5657)

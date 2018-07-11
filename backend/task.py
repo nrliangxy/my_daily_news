@@ -1,13 +1,9 @@
-import pymongo
 import psutil
-import uuid
-import time
-import subprocess
 import os
+import pymongo
 from uuid import uuid1
-import json
 from psutil import STATUS_ZOMBIE
-from database import TaskLog
+from database.models import TaskLog
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.base import JobLookupError
