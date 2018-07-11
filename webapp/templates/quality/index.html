@@ -9,8 +9,8 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header card-header-primary">
-                        <h4 class="card-title">条件编辑</h4>
-                        <p class="card-category">请填写过滤条件</p>
+                        <h4 class="card-title">新建质量检测规则</h4>
+                        <p class="card-category">请填写检测类或函数</p>
                     </div>
                     <div class="card-body">
                         <form action="{{ url_for("quality_view.query") }}" method="post">
@@ -26,87 +26,29 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="text-field">查询字段</label>
-                                        <input type="text" class="form-control" id="text-field" name="field">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="text-field">可选字段</label>
-                                        <input type="text" class="form-control" id="text-field" name="other_field">
-                                    </div>
-                                </div>
-                            </div>
+{#                            <div class="row">#}
+{#                                <div class="col-md-6">#}
+{#                                    <div class="form-group">#}
+{#                                        <label for="dataTypeSelect">规则类型</label>#}
+{#                                        <select class="form-control" id="ruleTypeSelect" name="rule_type">#}
+{#                                            <option value="function">函数</option>#}
+{#                                            <option value="class">类风格</option>#}
+{#                                        </select>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-startswith">(可选条件)起始字符(startswith)</label>
-                                        <input type="text" class="form-control" id="text-startswith" name="startswith">
+                                        <label for="rule-name">规则名</label>
+                                        <input type="text" class="form-control" id="rule-name" name="rule_name">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-endswith">(可选条件)结束字符(startswith)</label>
-                                        <input type="text" class="form-control" id="text-endswith" name="endswith">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-startword">(可选条件)开始单词(start word)</label>
-                                        <input type="text" class="form-control" id="text-startword" name="startword">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-endword">(可选条件)结束单词(end word)</label>
-                                        <input type="text" class="form-control" id="text-endword" name="endword">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-existsword">(可选条件)存在单词(existsword)</label>
-                                        <input type="text" class="form-control" id="text-existsword" name="existsword">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-minsize">(可选条件)最小长度</label>
-                                        <input type="text" class="form-control" id="text-minsize" name="minsize">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-maxsize">(可选条件)最大长度</label>
-                                        <input type="text" class="form-control" id="text-minsize" name="maxsize">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-mintime">(可选条件)最小时间yy-mm-dd</label>
-                                        <input type="text" class="form-control" id="text-mintime" name="mintime">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class='bmd-label-floating' for="text-maxtime">(可选条件)最大时间yy-mm-dd</label>
-                                        <input type="text" class="form-control" id="text-maxtime" name="maxtime">
+                                        <label for="rule-content">规则类(函数)</label>
+                                        <textarea class="form-control" id="rule-content"
+                                                  rows="30" name="rule_content"></textarea>
                                     </div>
                                 </div>
                             </div>

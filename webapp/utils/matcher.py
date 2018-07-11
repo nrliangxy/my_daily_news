@@ -160,8 +160,36 @@ class DateMatcher(FieldMatcher):
         return self
 
 
+def generate_date(field, other_field, client, db, collection, rule_data):
+    date = DateMatcher(field, other_field, client, db, collection)
+    if rule_data.get('mintime') or rule_data.get('maxtime'):
+        date.between_date(rule_data.get('mintime'), rule_data.get('maxtime'))
+    return date
+
+
+def generate_matcher(field, other_field, client, db, collection, rule_data) -> FieldMatcher:
+    m = FieldMatcher(field, other_field, client, db, collection)
+    if rule_data.get("startswith"):
+        m.match_char_start(rule_data["startswith"])
+    if rule_data.get("endswith"):
+        m.match_char_end(rule_data["endswith"])
+    if rule_data.get("startword"):
+        m.match_word_start(rule_data["startword"])
+    if rule_data.get("endword"):
+        m.match_word_end(rule_data["endword"])
+    if rule_data.get("existsword"):
+        m.match_word(rule_data["existsword"])
+    if rule_data.get("minsize"):
+        rule_data["minsize"] = int(rule_data["minsize"])
+    if rule_data.get("maxsize"):
+        rule_data["maxsize"] = int(rule_data["maxsize"])
+    if rule_data.get("minsize") or rule_data.get("maxsize"):
+        m.between_length(rule_data.get("minsize"), rule_data.get("maxsize"))
+    return m
+
+
 if __name__ == '__main__':
-    f = FieldMatcher("title", None, create_default_client(), "360_rawdata", "news")
-    f.match_char_start("abc").match_word_end("$")
+    f = FieldMatcher("title", None, create_default_client(), "360_rawdata", "funded_research")
+    f.match_char_start("[0-9@#$%^&*+=?:;!|`]")
     print(f.count())
     print(f.apply(10))
