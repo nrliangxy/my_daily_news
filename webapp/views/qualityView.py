@@ -64,14 +64,15 @@ def query():
 @quality_bp.route('/report', methods=["GET", "POST"])
 @session_load("quality")
 def quality_report():
-    rule_name = request.args.get("rule")
+    rule_name = request.form.get("quality-rule-name")
     coll = mongo_client["manager"]["quality_report"]
-    if rule_name is None:
-        reports = coll.find()
+    if rule_name is None or len(rule_name.strip()) == 0:
+        reports = coll.find().sort([("create_time", -1)]).limit(1)
     else:
-        reports = coll.find({"rule_name": rule_name})
+        reports = coll.find({"rule_name": rule_name}).sort([("create_time", -1)]).limit(1)
     reports = [i for i in reports]
-    print(reports)
+    if len(reports) <= 0:
+        return error_field_check_403("规则%s不存在" % rule_name)
     return render_template("quality/report.html", reports=reports)
 
 

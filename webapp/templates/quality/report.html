@@ -27,7 +27,7 @@
                                 <i class="material-icons">done</i>
                             </div>
                             <p class="card-category">成功数</p>
-                            <h3 class="card-title">{{  report['report']['success'] }}
+                            <h3 class="card-title">{{ report['report']['success'] }}
                                 <small>条</small>
                             </h3>
                         </div>
@@ -40,7 +40,7 @@
                                 <i class="material-icons">bug_report</i>
                             </div>
                             <p class="card-category">失败数</p>
-                            <h3 class="card-title">{{  report['report']['failed'] }}
+                            <h3 class="card-title">{{ report['report']['failed'] }}
                                 <small>条</small>
                             </h3>
                         </div>
@@ -50,9 +50,9 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12">
                     <div class="card">
-                        <div class="card-header card-header-icon">
-                            <h4 class="card-title">详细字段样例</h4>
-                            <p class="card-category">New employees on 15th September, 2016</p>
+                        <div class="card-header card-header-info">
+                            <h4 class="card-title"><b>{{ report['rule_name'] }}</b> ---检测结果</h4>
+                            <p class="card-category">检测时间耗时：{{ report['cost_time'] | float }}</p>
                         </div>
                         <div class="card-body table-responsive">
                             <table class="table table-hover">
@@ -61,17 +61,19 @@
                                     <th>字段名</th>
                                     <th>成功数</th>
                                     <th>失败数</th>
+                                    <th>字段缺失数</th>
                                     <th>失败样例</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {% for field, field_value in report['report']['field_stats'] %}
+                                {% for field, field_value in report['report']['field_stats'].items() %}
                                     <tr>
-                                    <td>{{ field }}</td>
-                                    <td>{{ field_value['success'] }}</td>
-                                    <td>{{ field_value['failed'] }}</td>
-                                    <td>{{ field_value['sample'] }}</td>
-                                </tr>
+                                        <td>{{ field }}</td>
+                                        <td>{{ field_value['success'] }}</td>
+                                        <td>{{ field_value['failed'] }}</td>
+                                        <td>{{ field_value['not_exists'] }}</td>
+                                        <td width="30%">{{ field_value['sample'] }}</td>
+                                    </tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
@@ -80,9 +82,9 @@
                 </div>
             </div>
         {% endfor %}
-
-
+    </div>
 {% endblock %}
+
 {% block script %}
     <script>
         $(document).ready(function () {

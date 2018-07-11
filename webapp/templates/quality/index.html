@@ -8,6 +8,27 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">最新质量报告获取</h4>
+                        <p class="card-category">请填写规则名称</p>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for("quality_view.quality_report") }}" method="post">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="quality-rule-name">规则名</label>
+                                        <input type="text" class="form-control" id="quality-rule-name" name="quality-rule-name">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary pull-right">查看报告</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="card">
                     <div class="card-header card-header-primary">
                         <h4 class="card-title">新建质量检测规则</h4>
                         <p class="card-category">请填写检测类或函数</p>
@@ -48,7 +69,7 @@
                                     <div class="form-group">
                                         <label for="rule-content">规则类(函数)</label>
                                         <textarea class="form-control" id="rule-content"
-                                                  rows="30" name="rule_content"></textarea>
+                                                  rows="10" name="rule_content"></textarea>
                                     </div>
                                 </div>
                             </div>
