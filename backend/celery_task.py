@@ -43,7 +43,7 @@ class QualityStatistics:
         # project = {k: 1 for k in self._functions.keys()}
         with open(self.export_file, "w") as fout:
             start_time = time.time()
-            for row in self._data_coll.find({}).limit(1000):
+            for row in self._data_coll.find({}):
                 valid_pass = self.valid_row(row)
                 if not valid_pass:
                     export_row = {key: row[key] for key in self._rule["rule_functions"] if row.get(key)}
