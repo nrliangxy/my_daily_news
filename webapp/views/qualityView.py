@@ -5,7 +5,6 @@ from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
 from backend.celery_task import data_quality_valid
 
-
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
 
 
@@ -16,13 +15,14 @@ def error_field_check_403(error_msg):
 @quality_bp.route('/index', methods=["GET", "POST"])
 @session_load("quality")
 def quality_index():
-    collection_name = sorted(mongo_client["360_rawdata"].list_collection_names(), key=lambda x: x)
+    collection_name = sorted(mongo_client["360_etl"].list_collection_names(), key=lambda x: x)
     return render_template("quality/index.html", data_source_list=collection_name)
 
 
 @quality_bp.route('/query', methods=["GET", "POST"])
 @session_load("quality")
 def query():
+    print(request.form)
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
     if form_data.get("data_type") is None:
         return error_field_check_403("数据源未提供")
@@ -33,34 +33,58 @@ def query():
     if form_data.get("rule_content") is None:
         return error_field_check_403("规则体未提供")
     rule_content = form_data.get("rule_content")
+    operator = form_data.get("operator", "create")
+    exist_rule = mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name})
     try:
         analysis_result = CodeAnalyzer(rule_content).get_analysis_result()
     except Exception as e:
         return error_field_check_403("规则代码分析失败, 错误描述：%s" % e)
-    valid_functions = [func_name.split("_", 1)[-1] for func_name in analysis_result.get("functions", []) if func_name.startswith("valid")]
+    valid_functions = [func_name.split("_", 1)[-1] for func_name in analysis_result.get("functions", []) if
+                       func_name.startswith("valid")]
     if len(valid_functions) <= 0:
         return error_field_check_403("不存在以valid开头的验证函数，请确保至少提交一个valid函数")
     if analysis_result.get("class"):
         rule_type = "class"
     else:
         rule_type = "function"
+    # 创建操作时
+    if operator == "create":
+        if exist_rule:
+            return error_field_check_403("无法创建，同名规则已存在！")
+        else:
+            row = mongo_client["manager"]["quality_rule"].insert_one({
+                "rule_name": rule_name,
+                "data_type": data_type,
+                "rule_content": rule_content,
+                "rule_type": rule_type,
+                "rule_functions": valid_functions,
+                "status": "running"
+            })
+            row_id = row.inserted_id
+    elif operator == "update":
+        if not exist_rule:
+            return error_field_check_403("无法更新，不已存在该规则！")
+        if exist_rule["status"] == "running":
+            return error_field_check_403("无法更新，规则还在运行中，请稍后更新")
+        else:
+            mongo_client["manager"]["quality_rule"].update_one({
+                "rule_name": rule_name
+            }, {"$set": {"rule_content": rule_content,
+                         "rule_type": rule_type,
+                         "rule_functions": valid_functions,
+                         "status": "running"}})
+            row_id = exist_rule["_id"]
+    else:
+        return error_field_check_403("非法操作：%s" % operator)
 
-    if mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name}):
-        return error_field_check_403("同名规则已存在")
-    row = mongo_client["manager"]["quality_rule"].insert_one({
-        "rule_name": rule_name,
-        "data_type": data_type,
-        "rule_content": rule_content,
-        "rule_type": rule_type,
-        "rule_functions": valid_functions
-    })
     data_quality_valid.delay(data_type, rule_name, current_app.config['QUALITY_EXPORT_DIRECTORY'])
+
     return jsonify(result={
         "rule_name": rule_name,
         "data_type": data_type,
         "rule_type": rule_type,
         "rule_functions": valid_functions,
-        "id": str(row.inserted_id)
+        "id": str(row_id)
     })
 
 
@@ -88,11 +112,16 @@ def report_export(rule_name):
     directory = current_app.config["QUALITY_EXPORT_DIRECTORY"]
     try:
         filename = rule_name + ".txt"
-        response = send_from_directory(directory=directory, filename=filename, as_attachment=True)
+        response = send_from_directory(directory=directory, filename=filename, as_attachment=True, cache_timeout=10)
         filename = filename.split(".")
         filename = quote(filename[0])
         response.headers["Content-Disposition"] = "attachment; filename={filename}.txt;".format(filename=filename)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.headers['Cache-Control'] = 'public, max-age=0'
     except Exception as e:
         return error_field_check_403("文件被删除，或不存在。请到文件所在目录%s查看" % directory)
     else:
         return response
+

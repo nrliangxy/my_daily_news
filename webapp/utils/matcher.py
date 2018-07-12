@@ -188,8 +188,3 @@ def generate_matcher(field, other_field, client, db, collection, rule_data) -> F
     return m
 
 
-if __name__ == '__main__':
-    f = FieldMatcher("title", None, create_default_client(), "360_rawdata", "funded_research")
-    f.match_char_start("[0-9@#$%^&*+=?:;!|`]")
-    print(f.count())
-    print(f.apply(10))
