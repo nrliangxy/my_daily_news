@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 from webapp.utils.tools import session_load
 from webapp import bg_manager, stm_manager, mongo_client
-from database.models import TaskLog, SchedulerTask, PatchTask
+from database.models import TaskLog
 import time
 
 sche_bp = Blueprint("sche_view", __name__, url_prefix="/scheduler")
@@ -59,7 +59,7 @@ def scheduler_log():
 @session_load("scheduler_f_process")
 def scheduler_log_process():
     info = {"count": 5}
-    coll = mongo_client['manager']['patch_task']
+    coll = mongo_client['manager']['fetch_task']
     start_time_list = coll.find().sort("start_ts", -1).limit(5)
     process_records = [chang_r(i) for i in start_time_list]
     return render_template("scheduler/result_page2.html", info=info, records=process_records)
