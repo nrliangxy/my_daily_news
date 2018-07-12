@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, request, jsonify, current_app, sen
 from webapp import mongo_client
 from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
-from database.schema import TABLE_SCHEMA
 from backend.celery_task import data_quality_valid
 
 
@@ -17,7 +16,8 @@ def error_field_check_403(error_msg):
 @quality_bp.route('/index', methods=["GET", "POST"])
 @session_load("quality")
 def quality_index():
-    return render_template("quality/index.html", data_source_list=TABLE_SCHEMA.keys())
+    collection_name = sorted(mongo_client["360_rawdata"].list_collection_names(), key=lambda x: x)
+    return render_template("quality/index.html", data_source_list=collection_name)
 
 
 @quality_bp.route('/query', methods=["GET", "POST"])
@@ -27,7 +27,7 @@ def query():
     if form_data.get("data_type") is None:
         return error_field_check_403("数据源未提供")
     data_type = form_data.pop("data_type")
-    if form_data.get("rule_name") is None and len(form_data["rule_name"].strip()) <= 0:
+    if form_data.get("rule_name") is None or len(form_data["rule_name"].strip()) <= 0:
         return error_field_check_403("规则名不合法")
     rule_name = form_data.get("rule_name")
     if form_data.get("rule_content") is None:

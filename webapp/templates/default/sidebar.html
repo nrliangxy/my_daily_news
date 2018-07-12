@@ -33,15 +33,15 @@
                     <p>质量检测</p>
                 </a>
                 </li>
-                {% if session['load'] == "scheduler"%}
+                {% if session['load'] == "scheduler" %}
                     <li class="nav-item active">
                         {% else %}
                     <li class="nav-item">
                 {% endif %}
-                    <a class="nav-link" href="/scheduler/index">
-                        <i class="material-icons">schedule</i>
-                        <p>计划任务</p>
-                    </a>
+                <a class="nav-link" href="/scheduler/index">
+                    <i class="material-icons">schedule</i>
+                    <p>计划任务</p>
+                </a>
                 </li>
                 {% if session['load'] == "scheduler_f" %}
                     <li class="nav-item active">
@@ -53,7 +53,7 @@
                     <p>计划任务日志</p>
                 </a>
                 </li>
-                     {% if session['load'] == "scheduler_f_process" %}
+                {% if session['load'] == "scheduler_f_process" %}
                     <li class="nav-item active">
                         {% else %}
                     <li class="nav-item">
@@ -63,36 +63,36 @@
                     <p>同步日志</p>
                 </a>
                 </li>
-                            <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="http://192.168.44.101:9001/">
                         <i class="material-icons">notifications</i>
                         <p>kafka</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/index/user">
-                        <i class="material-icons">person</i>
-                        <p>User Profile</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/index/tables">
-                        <i class="material-icons">content_paste</i>
-                        <p>Table List</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/index/typography">
-                        <i class="material-icons">library_books</i>
-                        <p>Typography</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/index/notifications">
-                        <i class="material-icons">notifications</i>
-                        <p>Notifications</p>
-                    </a>
-                </li>
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link" href="/index/user">#}
+                {#                        <i class="material-icons">person</i>#}
+                {#                        <p>User Profile</p>#}
+                {#                    </a>#}
+                {#                </li>#}
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link" href="/index/tables">#}
+                {#                        <i class="material-icons">content_paste</i>#}
+                {#                        <p>Table List</p>#}
+                {#                    </a>#}
+                {#                </li>#}
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link" href="/index/typography">#}
+                {#                        <i class="material-icons">library_books</i>#}
+                {#                        <p>Typography</p>#}
+                {#                    </a>#}
+                {#                </li>#}
+                {#                <li class="nav-item">#}
+                {#                    <a class="nav-link" href="/index/notifications">#}
+                {#                        <i class="material-icons">notifications</i>#}
+                {#                        <p>Notifications</p>#}
+                {#                    </a>#}
+                {#                </li>#}
             </ul>
         </div>
     </div>
