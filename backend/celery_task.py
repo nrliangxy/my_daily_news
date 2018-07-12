@@ -106,9 +106,13 @@ class QualityStatistics:
 
 @celery.task()
 def data_quality_valid(data_type, rule_name, export_directory):
-    q = QualityStatistics(data_type, rule_name, export_directory)
-    q.run()
-    print("finish %s valid" % rule_name)
+    try:
+        q = QualityStatistics(data_type, rule_name, export_directory)
+        q.run()
+        print("finish %s valid" % rule_name)
+    except Exception as e:
+        return "%s" % e
+    return "success"
 
 
 if __name__ == '__main__':
