@@ -2,6 +2,9 @@
 默认配置模块
 """
 import os
+import platform
+
+system = "windows" if platform.system().lower().find("windows") >= 0 else "other"
 
 
 class LogConfig:
@@ -12,4 +15,9 @@ class LogConfig:
 
 class DefaultConfig(LogConfig):
     SECRET_KEY = "the secret key"
-
+    QUALITY_EXPORT_DIRECTORY = os.environ.get("QUALITY_EXPORT_DIRECTORY")
+    if QUALITY_EXPORT_DIRECTORY is None:
+        if system == "windows":
+            QUALITY_EXPORT_DIRECTORY = r"D:\quality_report"
+        else:
+            QUALITY_EXPORT_DIRECTORY = r"/mnt/data/360_manager_quality_report"

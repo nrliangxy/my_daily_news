@@ -7,7 +7,7 @@
     <div class="container-fluid">
         {% for report in reports %}
             <div class="row">
-                <div class="col-md-4 col-sm-4">
+                <div class="col-md-3 col-sm-3">
                     <div class="card card-stats">
                         <div class="card-header card-header-info card-header-icon">
                             <div class="card-icon">
@@ -20,7 +20,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-4">
+                <div class="col-md-3 col-sm-3">
                     <div class="card card-stats">
                         <div class="card-header card-header-success card-header-icon">
                             <div class="card-icon">
@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-4">
+                <div class="col-md-3 col-sm-3">
                     <div class="card card-stats">
                         <div class="card-header card-header-danger card-header-icon">
                             <div class="card-icon">
@@ -45,6 +45,9 @@
                             </h3>
                         </div>
                     </div>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <a href="{{ url_for('quality_view.report_export',rule_name=report['rule_name'] ) }}" class="btn btn-primary">导出失败结果<div class="ripple-container"></div></a>
                 </div>
             </div>
             <div class="row">

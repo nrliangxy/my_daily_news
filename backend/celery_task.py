@@ -6,16 +6,18 @@ import os
 
 import time
 import datetime
+import json
 from celery import Celery
 from database import create_default_client
 # 动态使用
 from health360 import *
+import string
 
 celery = Celery(__name__, broker=os.environ.get("CELERY_BROKER_URL", "redis://192.168.44.101:6379/5"))
 
 
 class QualityStatistics:
-    def __init__(self, data_type, rule_name):
+    def __init__(self, data_type, rule_name, export_directory):
         mongo_client = create_default_client()
         self._rule_name = rule_name
         self._data_type = data_type
@@ -34,19 +36,26 @@ class QualityStatistics:
                             for field in self._functions.keys()}
         }
         self.cost = 0
+        self.export_file = os.path.join(export_directory, self._rule_name) + ".txt"
 
     def run(self):
         # project = {k: 1 for k in self._functions.keys()}
-        start_time = time.time()
-        for row in self._data_coll.find({}):
-            self.valid_row(row)
-        self.cost = time.time() - start_time
-        self._report_coll.insert_one({
-            "cost_time": self.cost,
-            "report": self._stats,
-            "create_time": datetime.datetime.now(),
-            "rule_name": self._rule_name
-        })
+        with open(self.export_file, "w") as fout:
+            start_time = time.time()
+            for row in self._data_coll.find({}).limit(1000):
+                valid_pass = self.valid_row(row)
+                if not valid_pass:
+                    export_row = {key: row[key] for key in self._rule["rule_functions"] if row.get(key)}
+                    export_row.update({"_id": row["_id"]})
+                    fout.write(json.dumps(export_row))
+                    fout.write("\n")
+            self.cost = time.time() - start_time
+            self._report_coll.insert_one({
+                "cost_time": self.cost,
+                "report": self._stats,
+                "create_time": datetime.datetime.now(),
+                "rule_name": self._rule_name
+            })
 
     def valid_row(self, row):
         self._stats["total"] += 1
@@ -59,18 +68,20 @@ class QualityStatistics:
             try:
                 success = vf(**row)
             except Exception as e:
+                print(e)
                 self.failed_update(field, row)
                 success_flag = False
                 continue
             if success:
                 self.success_update(field, row)
             else:
-                success_flag = True
+                success_flag = False
                 self.failed_update(field, row)
         if success_flag:
             self._stats["success"] += 1
         else:
             self._stats["failed"] += 1
+        return success_flag
 
     def failed_update(self, field, row):
         self._stats["field_stats"][field]["failed"] += 1
@@ -89,9 +100,8 @@ class QualityStatistics:
 
 
 @celery.task()
-def data_quality_valid(data_type, rule_name):
-    q = QualityStatistics(data_type, rule_name)
+def data_quality_valid(data_type, rule_name, export_directory):
+    q = QualityStatistics(data_type, rule_name, export_directory)
     q.run()
     print("finish %s valid" % rule_name)
-
 

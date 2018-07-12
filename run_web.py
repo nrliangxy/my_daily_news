@@ -6,6 +6,7 @@ from tornado.ioloop import IOLoop
 
 def run_tornado_server(host, port):
     app = create_default_app()
+    print(app.config)
     http_server = HTTPServer(WSGIContainer(app))
     http_server.listen(port, host)
     IOLoop.instance().start()
