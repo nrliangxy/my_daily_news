@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request
 from webapp.utils.tools import session_load
-from webapp import bg_manager, stm_manager
-from database.models import TaskLog, SchedulerTask
+from webapp import bg_manager, stm_manager, mongo_client
+from database.models import TaskLog, SchedulerTask, PatchTask
+import time
 
 sche_bp = Blueprint("sche_view", __name__, url_prefix="/scheduler")
 
@@ -54,13 +55,36 @@ def scheduler_log():
     return render_template("scheduler/result_page.html", info=info, records=records)
 
 
+@sche_bp.route('/scheduler_log_process', methods=["GET", "POST"])
+@session_load("scheduler_f_process")
+def scheduler_log_process():
+    info = {"count": 5}
+    coll = mongo_client['manager']['patch_task']
+    start_time_list = coll.find().sort("start_ts", -1).limit(5)
+    process_records = [chang_r(i) for i in start_time_list]
+    return render_template("scheduler/result_page2.html", info=info, records=process_records)
+
+
 def show_task_name():
     return [obj.task_name for obj in TaskLog.objects]
 
 
 def show_live_process():
     stm_manager.show_live_process(TaskLog)
-   
+
+
+def timestamp_datetime(value):
+    format = '%Y-%m-%d %H:%M:%S'
+    # value为传入的值为时间戳(整形)，如：1332888820
+    value = time.localtime(value)
+    dt = time.strftime(format, value)
+    return dt
+
+
+def chang_r(item):
+    item['start_ts'] = timestamp_datetime(item['start_ts'])
+    item['end_ts'] = timestamp_datetime(item['end_ts'])
+    return item
 
 
 def check_db(name=None):
