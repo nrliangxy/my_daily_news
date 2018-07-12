@@ -27,7 +27,7 @@ def query():
     if form_data.get("data_type") is None:
         return error_field_check_403("数据源未提供")
     data_type = form_data.pop("data_type")
-    if form_data.get("rule_name") is None and len(form_data["rule_name"].strip()) <= 0:
+    if form_data.get("rule_name") is None or len(form_data["rule_name"].strip()) <= 0:
         return error_field_check_403("规则名不合法")
     rule_name = form_data.get("rule_name")
     if form_data.get("rule_content") is None:

@@ -47,17 +47,6 @@
                                     </div>
                                 </div>
                             </div>
-{#                            <div class="row">#}
-{#                                <div class="col-md-6">#}
-{#                                    <div class="form-group">#}
-{#                                        <label for="dataTypeSelect">规则类型</label>#}
-{#                                        <select class="form-control" id="ruleTypeSelect" name="rule_type">#}
-{#                                            <option value="function">函数</option>#}
-{#                                            <option value="class">类风格</option>#}
-{#                                        </select>#}
-{#                                    </div>#}
-{#                                </div>#}
-{#                            </div>#}
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -69,7 +58,8 @@
                                     <div class="form-group">
                                         <label for="rule-content">规则类(函数)</label>
                                         <textarea class="form-control" id="rule-content"
-                                                  rows="10" name="rule_content"></textarea>
+                                                  rows="10" name="rule_content" placeholder="函数名以valid开头，后跟字段名。如valid_title,即验证标题......&#10;def valid_title(title, **kwargs):
+    return Title.apply(title)"></textarea>
                                     </div>
                                 </div>
                             </div>
