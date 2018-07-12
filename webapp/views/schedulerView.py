@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 from webapp.utils.tools import session_load
 from webapp import bg_manager, stm_manager, mongo_client
-from database.models import TaskLog, SchedulerTask, PatchTask
+from database.models import TaskLog
 import time
 
 sche_bp = Blueprint("sche_view", __name__, url_prefix="/scheduler")
