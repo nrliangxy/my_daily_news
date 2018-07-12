@@ -22,8 +22,9 @@ class QualityStatistics:
         self._rule_name = rule_name
         self._data_type = data_type
         self._rule = mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name})
-        self._data_coll = mongo_client["360_rawdata"][data_type]
+        self._data_coll = mongo_client["360_etl"][data_type]
         self._report_coll = mongo_client["manager"]["quality_report"]
+        self._rule_coll = mongo_client["manager"]["quality_rule"]
 
         exec(self._rule["rule_content"])
         local_vars = locals()
@@ -42,7 +43,7 @@ class QualityStatistics:
         # project = {k: 1 for k in self._functions.keys()}
         with open(self.export_file, "w") as fout:
             start_time = time.time()
-            for row in self._data_coll.find({}):
+            for row in self._data_coll.find({}).limit(1000):
                 valid_pass = self.valid_row(row)
                 if not valid_pass:
                     export_row = {key: row[key] for key in self._rule["rule_functions"] if row.get(key)}
@@ -50,12 +51,16 @@ class QualityStatistics:
                     fout.write(json.dumps(export_row))
                     fout.write("\n")
             self.cost = time.time() - start_time
-            self._report_coll.insert_one({
+            self._report_coll.update_one({"rule_name": self._rule_name}, {"$set": {
                 "cost_time": self.cost,
                 "report": self._stats,
                 "create_time": datetime.datetime.now(),
-                "rule_name": self._rule_name
-            })
+                "update_time": datetime.datetime.now(),
+                "rule_name": self._rule_name}
+            }, upsert=True)
+        self._rule_coll.update_one({
+            "rule_name": self._rule_name,
+}, {"$set": {"status": "finish", "update_time": datetime.datetime.now()}})
 
     def valid_row(self, row):
         self._stats["total"] += 1
@@ -105,3 +110,7 @@ def data_quality_valid(data_type, rule_name, export_directory):
     q.run()
     print("finish %s valid" % rule_name)
 
+
+if __name__ == '__main__':
+    q = QualityStatistics("funded_research", "test", r"D:\quality_report")
+    q.run()
