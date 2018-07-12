@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify
+from urllib.parse import quote
+from flask import Blueprint, render_template, request, jsonify, current_app, send_from_directory
 from webapp import mongo_client
 from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
@@ -53,7 +54,7 @@ def query():
         "rule_type": rule_type,
         "rule_functions": valid_functions
     })
-    data_quality_valid.delay(data_type, rule_name)
+    data_quality_valid.delay(data_type, rule_name, current_app.config['QUALITY_EXPORT_DIRECTORY'])
     return jsonify(result={
         "rule_name": rule_name,
         "data_type": data_type,
@@ -81,4 +82,17 @@ def quality_report():
     return render_template("quality/report.html", reports=reports)
 
 
-
+@quality_bp.route('/export/<rule_name>', methods=["GET", "POST"])
+@session_load("quality")
+def report_export(rule_name):
+    directory = current_app.config["QUALITY_EXPORT_DIRECTORY"]
+    try:
+        filename = rule_name + ".txt"
+        response = send_from_directory(directory=directory, filename=filename, as_attachment=True)
+        filename = filename.split(".")
+        filename = quote(filename[0])
+        response.headers["Content-Disposition"] = "attachment; filename={filename}.txt;".format(filename=filename)
+    except Exception as e:
+        return error_field_check_403("文件被删除，或不存在。请到文件所在目录%s查看" % directory)
+    else:
+        return response
