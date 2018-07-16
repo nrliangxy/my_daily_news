@@ -63,9 +63,7 @@ class QualityStatistics:
                 "update_time": datetime.datetime.now(),
                 "rule_name": self._rule_name}
             }, upsert=True)
-        self._rule_coll.update_one({
-            "rule_name": self._rule_name,
-}, {"$set": {"status": "finish", "update_time": datetime.datetime.now()}})
+        self.update_finish_status()
 
     def valid_row(self, row):
         self._stats["total"] += 1
@@ -108,14 +106,20 @@ class QualityStatistics:
     def stats(self):
         return self._stats
 
+    def update_finish_status(self):
+        self._rule_coll.update_one({
+            "rule_name": self._rule_name,
+        }, {"$set": {"status": "finish", "update_time": datetime.datetime.now()}})
+
 
 @celery.task()
 def data_quality_valid(data_type, rule_name, export_directory):
+    q = QualityStatistics(data_type, rule_name, export_directory)
     try:
-        q = QualityStatistics(data_type, rule_name, export_directory)
         q.run()
         print("finish %s valid" % rule_name)
     except Exception as e:
+        q.update_finish_status()
         return "%s" % e
     return "success"
 
