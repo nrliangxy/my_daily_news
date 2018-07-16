@@ -94,7 +94,7 @@ class QualityStatistics:
     def failed_update(self, field, row):
         self._stats["field_stats"][field]["failed"] += 1
         if len(self._stats["field_stats"][field]["sample"]) < 1:
-            self._stats["field_stats"][field]["sample"].append({row['repo_id']: row[field]})
+            self._stats["field_stats"][field]["sample"].append({row['_id']: row[field]})
 
     def success_update(self, field, row):
         self._stats["field_stats"][field]["success"] += 1
@@ -125,6 +125,6 @@ def data_quality_valid(data_type, rule_name, export_directory):
 
 
 if __name__ == '__main__':
-    q = QualityStatistics("funded_research", "full_valid", r"D:\quality_report")
+    q = QualityStatistics("organization", "公司名", r"D:\quality_report")
     q.run()
     print(q.stats)
