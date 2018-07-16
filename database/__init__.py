@@ -1,5 +1,4 @@
 import pymongo
-import datetime
 from mongoengine import *
 from urllib.parse import quote_plus
 

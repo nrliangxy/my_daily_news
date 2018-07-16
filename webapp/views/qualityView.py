@@ -15,14 +15,13 @@ def error_field_check_403(error_msg):
 @quality_bp.route('/index', methods=["GET", "POST"])
 @session_load("quality")
 def quality_index():
-    collection_name = sorted(mongo_client["360_etl"].list_collection_names(), key=lambda x: x)
+    collection_name = sorted(mongo_client["360_etl"].collection_names(), key=lambda x: x)
     return render_template("quality/index.html", data_source_list=collection_name)
 
 
 @quality_bp.route('/query', methods=["GET", "POST"])
 @session_load("quality")
 def query():
-    print(request.form)
     form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
     if form_data.get("data_type") is None:
         return error_field_check_403("数据源未提供")
@@ -58,6 +57,7 @@ def query():
                 "rule_content": rule_content,
                 "rule_type": rule_type,
                 "rule_functions": valid_functions,
+                "rule_class": analysis_result.get("class", None),
                 "status": "running"
             })
             row_id = row.inserted_id
@@ -84,6 +84,7 @@ def query():
         "data_type": data_type,
         "rule_type": rule_type,
         "rule_functions": valid_functions,
+        "rule_class": analysis_result.get("class", None),
         "id": str(row_id)
     })
 
