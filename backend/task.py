@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.base import JobLookupError
 from enum import Enum, unique
+from database.models import TaskLog
 
 
 # from common.logger_handler import LogHandler
@@ -95,12 +96,30 @@ class BackgroundTaskManager:
 class SchedulerTaskManager:
     def __init__(self, database: pymongo.MongoClient):
         self._database = database['manager']['command']
-        self._scheduled_task = {}
+        self._scheduled_task = self._check_pid()
+    
+    def _check_pid(self):
+        pids = {}
+        for task in TaskLog.objects:
+            if self.check_pid(task.pid_num):
+                obj = psutil.Process(task.pid_num)
+                task.update(status="RUNNING")
+                pids.update({task.task_name: obj})
+        return pids
+    
+    def check_pid(self, pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
     
     def start_command_process(self, command_id, command):
         command = ['nohup'] + command
         process = psutil.Popen(command)
-        r_insert = {"task_id": str(uuid1()), "task_name": command_id, "pid_num": process.pid, "task_file_path": command[2]}
+        r_insert = {"task_id": str(uuid1()), "task_name": command_id, "pid_num": process.pid,
+                    "task_file_path": command[2]}
         obj = TaskLog(**r_insert)
         obj.save()
         self._scheduled_task.setdefault(command_id, process)
@@ -178,13 +197,14 @@ class SchedulerTaskManager:
         for command_id in zombies:
             self._scheduled_task.pop(command_id)
         return self._scheduled_task
-
+    
     def show_live_process(self, db_obj):
         live_process = self.refresh_process()
         live_list = list(live_process.keys())
         for obj in db_obj.objects:
             if obj.task_name not in live_list:
                 obj.update(status='stop')
+            
 
 
 if __name__ == '__main__':
