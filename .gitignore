@@ -12,6 +12,7 @@ __pycache__/
 !/src/spiders/hello_post_spider.py
 migrations
 .idea
+Untitled.ipynb
 logs/*
 !logs/.gitkeep
 !logs/__init__.py
