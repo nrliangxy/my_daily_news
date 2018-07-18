@@ -126,3 +126,8 @@ def report_export(rule_name):
     else:
         return response
 
+
+@quality_bp.route("/health_check")
+@session_load("quality")
+def health_check():
+    return ""
