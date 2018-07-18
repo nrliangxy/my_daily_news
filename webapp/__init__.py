@@ -1,7 +1,7 @@
 import time
 import base64
 import atexit
-
+import redis
 from flask import Flask, g, request, Markup
 from werkzeug.contrib.profiler import ProfilerMiddleware
 from webapp.log import create_logger, generate_logger_handler
@@ -18,6 +18,7 @@ stm_manager = SchedulerTaskManager(mongo_client)
 bg_manager = BackgroundTaskManager(mongo_client)
 bg_manager.start()
 atexit.register(lambda: bg_manager.shutdown())
+
 
 
 def create_default_app(profile=False, debug=False):

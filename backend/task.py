@@ -9,6 +9,13 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.jobstores.base import JobLookupError
 from enum import Enum, unique
 from database.models import TaskLog
+import redis
+
+r = redis.Redis(host='192.168.44.101', port=6379)
+
+sub = r.pubsub()
+
+sub.subscribe('command')
 
 
 # from common.logger_handler import LogHandler
@@ -115,11 +122,14 @@ class SchedulerTaskManager:
         else:
             return True
     
+    
+            
+    
     def start_command_process(self, command_id, command):
         command = ['nohup'] + command
         process = psutil.Popen(command)
         r_insert = {"task_id": str(uuid1()), "task_name": command_id, "pid_num": process.pid,
-                    "task_file_path": command[2]}
+                    "task_file_path": command[2], "status": "RUNNING"}
         obj = TaskLog(**r_insert)
         obj.save()
         self._scheduled_task.setdefault(command_id, process)
@@ -188,10 +198,8 @@ class SchedulerTaskManager:
     
     def refresh_process(self):
         zombies = []
-        # print(self._scheduled_task)
         for pn, process in self._scheduled_task.items():
-            # print(process.status())
-            if process.status() == STATUS_ZOMBIE:
+            if not self.check_pid(process.pid) or process.status() == STATUS_ZOMBIE:
                 zombies.append(pn)
                 self.kill_process_by_pid(process.pid)
         for command_id in zombies:
@@ -204,7 +212,6 @@ class SchedulerTaskManager:
         for obj in db_obj.objects:
             if obj.task_name not in live_list:
                 obj.update(status='stop')
-            
 
 
 if __name__ == '__main__':
