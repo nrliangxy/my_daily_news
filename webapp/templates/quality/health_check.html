@@ -1,0 +1,113 @@
+{% extends "default/base.html" %}
+{% block navbar_brand %}
+    <a class="navbar-brand" href="#">HealthCheck Report</a>
+{% endblock %}
+
+{% block content_body %}
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header card-header-primary">
+                    <h4 class="card-title">HealthCheck 统计</h4>
+                    <p class="card-category">请选择检测类型</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="dataTypeSelect">数据源</label>
+                                <select class="form-control" id="dataTypeSelect" name="data_type">
+                                    {% for source in data_type_list %}
+                                        <option value="{{ source }}">{{ source }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary pull-right" id="chart">提交</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div id="main-chart" style="width: 1000px;height:600px;" class="card-body">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        function setOption(chart, raw_data) {
+            // 指定图表的配置项和数据
+            var source_data = raw_data.check_rows;
+            var data = [];
+            var legend = [];
+            var data_type = raw_data.data_type;
+            for (var i = 0; i < source_data.length; i++) {
+                data.push({"value": source_data[i][0], "name": source_data[i][1]});
+                legend.push(source_data[i][1]);
+            }
+            var option = {
+                title: {
+                    text: data_type,
+                    x: 'center',
+                    y: 'top',
+                    textAlign: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    x: 'left',
+                    data: legend
+                },
+                series: [
+                    {
+                        name: '状态统计',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        data: data,
+                        label: {
+                            normal: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '15',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            chart.setOption(option);
+            console.log(option)
+        }
+
+        $(document).ready(function () {
+            // Javascript method's body can be found in assets/js/demos.js
+            {#            md.initDashboardPageCharts();#}
+            var myChart = echarts.init(document.getElementById('main-chart'));
+            $("#chart").click(function () {
+                var data_type = $("#dataTypeSelect").val();
+                $.post("/quality/health_check",
+                    {"data_type": data_type},
+                    function (data) {
+                        if (data.status === 0) {
+                            alert(data.msg);
+                        } else {
+                            alert(data.msg);
+                            setOption(myChart, data)
+                        }
+                    }, "json");
+            })
+        });
+    </script>
+{% endblock %}

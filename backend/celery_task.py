@@ -25,10 +25,15 @@ class QualityStatistics:
         self._data_coll = mongo_client["360_etl"][data_type]
         self._report_coll = mongo_client["manager"]["quality_report"]
         self._rule_coll = mongo_client["manager"]["quality_rule"]
-
+        self._rule_type = self._rule["rule_type"]
         exec(self._rule["rule_content"])
         local_vars = locals()
-        self._functions = {func_name: local_vars["valid_" + func_name] for func_name in self._rule["rule_functions"]}
+        if self._rule_type == "function":
+            self._functions = {func_name: local_vars["valid_" + func_name] for func_name in self._rule["rule_functions"]}
+        else:
+            rule_class = local_vars.get(self._rule["rule_class"])
+            self._functions = {func_name: getattr(rule_class, "valid_" + func_name) for func_name in self._rule["rule_functions"]
+                               if getattr(rule_class, "valid_" + func_name, None)}
         self._stats = {
             "total": 0,
             "success": 0,
@@ -58,9 +63,7 @@ class QualityStatistics:
                 "update_time": datetime.datetime.now(),
                 "rule_name": self._rule_name}
             }, upsert=True)
-        self._rule_coll.update_one({
-            "rule_name": self._rule_name,
-}, {"$set": {"status": "finish", "update_time": datetime.datetime.now()}})
+        self.update_finish_status()
 
     def valid_row(self, row):
         self._stats["total"] += 1
@@ -91,7 +94,7 @@ class QualityStatistics:
     def failed_update(self, field, row):
         self._stats["field_stats"][field]["failed"] += 1
         if len(self._stats["field_stats"][field]["sample"]) < 1:
-            self._stats["field_stats"][field]["sample"].append({row['repo_id']: row[field]})
+            self._stats["field_stats"][field]["sample"].append({row['_id']: row[field]})
 
     def success_update(self, field, row):
         self._stats["field_stats"][field]["success"] += 1
@@ -103,18 +106,25 @@ class QualityStatistics:
     def stats(self):
         return self._stats
 
+    def update_finish_status(self):
+        self._rule_coll.update_one({
+            "rule_name": self._rule_name,
+        }, {"$set": {"status": "finish", "update_time": datetime.datetime.now()}})
+
 
 @celery.task()
 def data_quality_valid(data_type, rule_name, export_directory):
+    q = QualityStatistics(data_type, rule_name, export_directory)
     try:
-        q = QualityStatistics(data_type, rule_name, export_directory)
         q.run()
         print("finish %s valid" % rule_name)
     except Exception as e:
+        q.update_finish_status()
         return "%s" % e
     return "success"
 
 
 if __name__ == '__main__':
-    q = QualityStatistics("funded_research", "test", r"D:\quality_report")
+    q = QualityStatistics("organization", "公司名", r"D:\quality_report")
     q.run()
+    print(q.stats)

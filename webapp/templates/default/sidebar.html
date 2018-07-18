@@ -14,7 +14,7 @@
         <div class="sidebar-wrapper">
             <ul class="nav">
                 {% if session['load'] == "index" %}
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         {% else %}
                     <li class="nav-item">
                 {% endif %}
@@ -24,87 +24,45 @@
                 </a>
                 </li>
                 {% if session['load'] == "quality" %}
-                    <li class="nav-item active">
+                    <li class="nav-item dropdown active">
                         {% else %}
-                    <li class="nav-item">
+                    <li class="nav-item dropdown">
                 {% endif %}
-                <a class="nav-link" href="/quality/index">
+                <a class="nav-link" href="#" id="qualityMenu" data-toggle="dropdown">
                     <i class="material-icons">edit</i>
                     <p>质量检测</p>
                 </a>
+                <div class="dropdown-menu" aria-labelledby="qualityMenu">
+                    <a class="dropdown-item" href="/quality/index">质量检测</a>
+                    <a class="dropdown-item" href="/quality/health_check">healthcheck报告</a>
+                </div>
                 </li>
-                {% if session['load'] == "scheduler" %}
-                    <li class="nav-item active">
+                {% if session['load'] in ["scheduler", "scheduler_f", "scheduler_f_process"] %}
+                    <li class="nav-item dropdown active">
                         {% else %}
-                    <li class="nav-item">
+                    <li class="nav-item dropdown">
                 {% endif %}
-                <a class="nav-link" href="/scheduler/index">
+                <a class="nav-link" href="#" id="schedulerMenu" data-toggle="dropdown">
                     <i class="material-icons">schedule</i>
                     <p>计划任务</p>
                 </a>
+                <div class="dropdown-menu" aria-labelledby="schedulerMenu">
+                    <a class="dropdown-item" href="/scheduler/index">计划任务</a>
+                    <a class="dropdown-item" href="/scheduler/scheduler_log">计划任务日志</a>
+                    <a class="dropdown-item" href="/scheduler/scheduler_log_process">同步日志</a>
+                </div>
                 </li>
-                {% if session['load'] == "scheduler_f" %}
-                    <li class="nav-item active">
-                        {% else %}
-                    <li class="nav-item">
-                {% endif %}
-                <a class="nav-link" href="/scheduler/scheduler_log">
-                    <i class="material-icons">edit</i>
-                    <p>计划任务日志</p>
-                </a>
-                </li>
-                {% if session['load'] == "scheduler_f_process" %}
-                    <li class="nav-item active">
-                        {% else %}
-                    <li class="nav-item">
-                {% endif %}
-                <a class="nav-link" href="/scheduler/scheduler_log_process">
-                    <i class="material-icons">edit</i>
-                    <p>同步日志</p>
-                </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://192.168.44.101:9001/">
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" id="otherDashboardMenu" data-toggle="dropdown">
                         <i class="material-icons">notifications</i>
-                        <p>kafka</p>
+                        <p>服务dashboard</p>
                     </a>
+                    <div class="dropdown-menu" aria-labelledby="otherDashboardMenu">
+                        <a class="dropdown-item" href="http://192.168.44.101:9001/">kafka</a>
+                        <a class="dropdown-item" href="http://192.168.44.101:8080/etcdkeeper3/">etcd</a>
+                        <a class="dropdown-item" href="http://192.168.44.101:5658/">celery flower</a>
+                    </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://192.168.44.101:8080/etcdkeeper3/">
-                        <i class="material-icons"></i>
-                        <p>etcd</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://192.168.44.101:5658/">
-                        <i class="material-icons">notifications</i>
-                        <p>flower</p>
-                    </a>
-                </li>
-                {#                <li class="nav-item">#}
-                {#                    <a class="nav-link" href="/index/user">#}
-                {#                        <i class="material-icons">person</i>#}
-                {#                        <p>User Profile</p>#}
-                {#                    </a>#}
-                {#                </li>#}
-                {#                <li class="nav-item">#}
-                {#                    <a class="nav-link" href="/index/tables">#}
-                {#                        <i class="material-icons">content_paste</i>#}
-                {#                        <p>Table List</p>#}
-                {#                    </a>#}
-                {#                </li>#}
-                {#                <li class="nav-item">#}
-                {#                    <a class="nav-link" href="/index/typography">#}
-                {#                        <i class="material-icons">library_books</i>#}
-                {#                        <p>Typography</p>#}
-                {#                    </a>#}
-                {#                </li>#}
-                {#                <li class="nav-item">#}
-                {#                    <a class="nav-link" href="/index/notifications">#}
-                {#                        <i class="material-icons">notifications</i>#}
-                {#                        <p>Notifications</p>#}
-                {#                    </a>#}
-                {#                </li>#}
             </ul>
         </div>
     </div>
