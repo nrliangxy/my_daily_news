@@ -129,7 +129,7 @@ class SchedulerTaskManager:
         command = ['nohup'] + command
         process = psutil.Popen(command)
         r_insert = {"task_id": str(uuid1()), "task_name": command_id, "pid_num": process.pid,
-                    "task_file_path": command[2], "status": "RUNNING"}
+                    "task_file_path": command[2]}
         obj = TaskLog(**r_insert)
         obj.save()
         self._scheduled_task.setdefault(command_id, process)
