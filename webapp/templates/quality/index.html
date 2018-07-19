@@ -18,7 +18,8 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="quality-rule-name">规则名</label>
-                                        <input type="text" class="form-control" id="quality-rule-name" name="quality-rule-name">
+                                        <input type="text" class="form-control" id="quality-rule-name"
+                                               name="quality-rule-name">
                                     </div>
                                 </div>
                             </div>
@@ -50,6 +51,17 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="databaseSelect">数据库</label>
+                                        <select class="form-control" id="databaseSelect" name="from_database">
+                                            <option value="360_final">360_final(测试)</option>
+                                            <option value="360_etl">360_etl(开发)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="data_operator">操作</label>
                                         <select class="form-control" id="data_operator" name="operator">
                                             <option value="create">新建</option>
@@ -69,7 +81,8 @@
                                     <div class="form-group">
                                         <label for="rule-content">规则类(函数)</label>
                                         <textarea class="form-control" id="rule-content"
-                                                  rows="10" name="rule_content" placeholder="函数名以valid开头，后跟字段名。如valid_title,即验证标题......&#10;def valid_title(title, **kwargs):
+                                                  rows="10" name="rule_content"
+                                                  placeholder="函数名以valid开头，后跟字段名。如valid_title,即验证标题......&#10;def valid_title(title, **kwargs):
     return Title.apply(title)"></textarea>
                                     </div>
                                 </div>

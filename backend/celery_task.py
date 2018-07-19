@@ -17,12 +17,12 @@ celery = Celery(__name__, broker=os.environ.get("CELERY_BROKER_URL", "redis://19
 
 
 class QualityStatistics:
-    def __init__(self, data_type, rule_name, export_directory):
+    def __init__(self, data_type, rule_name, export_directory, from_database="360_final"):
         mongo_client = create_default_client()
         self._rule_name = rule_name
         self._data_type = data_type
         self._rule = mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name})
-        self._data_coll = mongo_client["360_etl"][data_type]
+        self._data_coll = mongo_client[from_database][data_type]
         self._report_coll = mongo_client["manager"]["quality_report"]
         self._rule_coll = mongo_client["manager"]["quality_rule"]
         self._rule_type = self._rule["rule_type"]
@@ -113,8 +113,8 @@ class QualityStatistics:
 
 
 @celery.task()
-def data_quality_valid(data_type, rule_name, export_directory):
-    q = QualityStatistics(data_type, rule_name, export_directory)
+def data_quality_valid(data_type, rule_name, export_directory, from_database=None):
+    q = QualityStatistics(data_type, rule_name, export_directory, from_database=from_database)
     try:
         q.run()
         print("finish %s valid" % rule_name)
@@ -125,6 +125,6 @@ def data_quality_valid(data_type, rule_name, export_directory):
 
 
 if __name__ == '__main__':
-    q = QualityStatistics("organization", "公司名", r"D:\quality_report")
+    q = QualityStatistics("organization", "的我去多1", r"D:\quality_report", from_database="360_final")
     q.run()
     print(q.stats)

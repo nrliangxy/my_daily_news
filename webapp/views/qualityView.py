@@ -31,6 +31,10 @@ def query():
     rule_name = form_data.get("rule_name")
     if form_data.get("rule_content") is None:
         return error_field_check_403("规则体未提供")
+    from_database = form_data.get("database", "360_final")
+    if from_database not in ["360_etl", "360_final"]:
+        return error_field_check_403("非法数据库")
+    print(request.form)
     rule_content = form_data.get("rule_content")
     operator = form_data.get("operator", "create")
     exist_rule = mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name})
@@ -77,7 +81,7 @@ def query():
     else:
         return error_field_check_403("非法操作：%s" % operator)
 
-    data_quality_valid.delay(data_type, rule_name, current_app.config['QUALITY_EXPORT_DIRECTORY'])
+    data_quality_valid.delay(data_type, rule_name, current_app.config['QUALITY_EXPORT_DIRECTORY'], from_database)
 
     return jsonify(result={
         "rule_name": rule_name,
@@ -130,7 +134,6 @@ def report_export(rule_name):
 @quality_bp.route("/health_check", methods=["GET", "POST"])
 @session_load("quality")
 def health_check():
-    print(request.form)
     data_type = request.form.get("data_type")
     data_type_list = mongo_client["360_etl"].collection_names()
     if data_type is None:
@@ -150,14 +153,10 @@ def health_check():
                 }
             ], allowDiskUse=True)
         except Exception as e:
-            print(e)
             return jsonify(status=0, msg="查询失败")
         check_rows = [[row["count"], row["_id"]] for row in check_rows]
-        print(check_rows, sum([i[0] for i in check_rows]))
         return jsonify(status=1, check_rows=check_rows, total=sum([i[0] for i in check_rows]), data_type=data_type,
                        msg="success")
-        # return render_template("quality/health_check.html", data_type_list=data_type_list, data_type=data_type,
-        #                        check_rows=check_rows)
     else:
         return render_template("quality/health_check.html", data_type_list=data_type_list, data_type=None,
                                check_rows=[])
