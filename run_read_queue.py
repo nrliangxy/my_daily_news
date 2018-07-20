@@ -15,10 +15,8 @@ init_mongonengin_connect()
 mongo_client = create_default_client()
 # 初始化后台任务
 stm_manager = SchedulerTaskManager(mongo_client)
-import redis
+#redis
 pool = redis.ConnectionPool(host='192.168.44.101', port=6379, decode_responses=True)
-# r = redis.Redis(host='192.168.44.101', port=6379)
-
 R = redis.Redis(connection_pool=pool)
 
 
@@ -49,36 +47,18 @@ def check_db(name=None):
 
 temp = []
 def start_command():
-    # n = 0
-    global temp
     while True:
-        # print('=' * 66)
-        # form_data = sub.parse_response()[-1]
-        # n += 1
-        # print(n)
-        
-        # print('temp1:', temp)
         r = [i['task_name'] for i in check_db()[0] if i['status'] == 'stop']
         if r:
-            # print('='*66)
-            # print(temp)
-            # print(r)
-            # print('='*66)
             r_2 = []
             for i in r:
-                if i not in temp:
+                if i not in set(temp):
                     r_2.append(i)
-            # print('r_after:',r_2)
             if r_2:
                 n = Notification(robot_api)
                 temp.extend(r)
-                temp = list(set(temp))
-                # print('temp:',temp)
-                # print('r:',r)
                 print(n.remind("%s have been hung up" % str(r_2)))
                 continue
-
-        # form_data = sub.parse_response()[-1]
         if R.lrange('form_data2', 0, -1):
             form_data = R.lpop('form_data2')
             if form_data != 1:
@@ -98,7 +78,6 @@ def start_command():
                 else:
                     stm_manager.start_command_process(name, command_list)
 
-        # command_list = command.split()
         
         
 
