@@ -9,12 +9,14 @@ import datetime
 import json
 from celery import Celery
 from database import create_default_client
+from backend.notify import Notification
 # 动态使用
 from health360 import *
 import string
 
 celery = Celery(__name__, broker=os.environ.get("CELERY_BROKER_URL", "redis://192.168.44.101:6379/5"))
 
+task_notification = Notification(robot_url="https://oapi.dingtalk.com/robot/send?access_token=4fb938fbcbbacd0c534e8b599ad64149f9a1d3d048683b42e3469ae0c8c445e7")
 
 class QualityStatistics:
     def __init__(self, data_type, rule_name, export_directory, from_database="360_final"):
@@ -48,7 +50,7 @@ class QualityStatistics:
         # project = {k: 1 for k in self._functions.keys()}
         with open(self.export_file, "w") as fout:
             start_time = time.time()
-            for row in self._data_coll.find({}):
+            for row in self._data_coll.find({}).limit(10):
                 valid_pass = self.valid_row(row)
                 if not valid_pass:
                     export_row = {key: row[key] for key in self._rule["rule_functions"] if row.get(key)}
@@ -117,14 +119,16 @@ def data_quality_valid(data_type, rule_name, export_directory, from_database=Non
     q = QualityStatistics(data_type, rule_name, export_directory, from_database=from_database)
     try:
         q.run()
-        print("finish %s valid" % rule_name)
+        msg = "success"
     except Exception as e:
         q.update_finish_status()
-        return "%s" % e
-    return "success"
+        msg = "%s" % e
+    task_notification.remind(f"规则:[飞吻]{rule_name}[跳舞] 已经处理完毕, 请跳转至http://192.168.44.101:5658/tasks 查看详细信息。")
+    return msg
 
 
 if __name__ == '__main__':
-    q = QualityStatistics("organization", "的我去多1", r"D:\quality_report", from_database="360_final")
-    q.run()
-    print(q.stats)
+    data_quality_valid("organization", "的我去多1", r"D:\quality_report", from_database="360_etl")
+    # q = QualityStatistics("organization", "的我去多1", r"D:\quality_report", from_database="360_final")
+    # q.run()
+    # print(q.stats)
