@@ -160,3 +160,22 @@ def health_check():
     else:
         return render_template("quality/health_check.html", data_type_list=data_type_list, data_type=None,
                                check_rows=[])
+
+
+@quality_bp.route("/rule", methods=["GET", "POST"])
+@session_load("quality")
+def quality_rule():
+    return ""
+    # rule_name = request.form.get("quality-rule-name")
+    # coll = mongo_client["manager"]["quality_rule"]
+    # if rule_name is None or len(rule_name.strip()) == 0:
+    #     reports = coll.find().sort([("create_time", -1)]).limit(1)
+    # else:
+    #     reports = coll.find({"rule_name": rule_name}).sort([("create_time", -1)]).limit(1)
+    # reports = [i for i in reports]
+    # if len(reports) <= 0:
+    #     if mongo_client["manager"]["quality_rule"].find_one({"rule_name": rule_name}):
+    #         return error_field_check_403("规则%s正在运行中，请稍后查询" % rule_name)
+    #     else:
+    #         return error_field_check_403("规则%s运行中或不存在" % rule_name)
+    # return render_template("quality/report.html", reports=reports)

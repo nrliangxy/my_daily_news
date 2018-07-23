@@ -16,7 +16,8 @@ import string
 
 celery = Celery(__name__, broker=os.environ.get("CELERY_BROKER_URL", "redis://192.168.44.101:6379/5"))
 
-task_notification = Notification(robot_url="https://oapi.dingtalk.com/robot/send?access_token=4fb938fbcbbacd0c534e8b599ad64149f9a1d3d048683b42e3469ae0c8c445e7")
+task_notification = Notification(robot_url="https://oapi.dingtalk.com/robot/send?access_token=9f115406e358d84bb6b66c84c0e6371bfa5ca5258caf5e4cadb93a064b2cf713")
+
 
 class QualityStatistics:
     def __init__(self, data_type, rule_name, export_directory, from_database="360_final"):
@@ -50,7 +51,7 @@ class QualityStatistics:
         # project = {k: 1 for k in self._functions.keys()}
         with open(self.export_file, "w") as fout:
             start_time = time.time()
-            for row in self._data_coll.find({}).limit(10):
+            for row in self._data_coll.find({}):
                 valid_pass = self.valid_row(row)
                 if not valid_pass:
                     export_row = {key: row[key] for key in self._rule["rule_functions"] if row.get(key)}
@@ -120,10 +121,11 @@ def data_quality_valid(data_type, rule_name, export_directory, from_database=Non
     try:
         q.run()
         msg = "success"
+        task_notification.remind(f"规则: ->[飞吻][{rule_name}][跳舞] 已经处理完毕, 请在 http://192.168.44.101:5657/quality/index 上获取报告")
     except Exception as e:
         q.update_finish_status()
         msg = "%s" % e
-    task_notification.remind(f"规则:[飞吻]{rule_name}[跳舞] 已经处理完毕, 请跳转至http://192.168.44.101:5658/tasks 查看详细信息。")
+        task_notification.remind(f"规则: ->[{rule_name}][捂脸哭] 处理失败,请跳转至http://192.168.44.101:5658/tasks 查看任务失败原因。")
     return msg
 
 
