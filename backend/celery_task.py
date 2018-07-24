@@ -29,12 +29,15 @@ class QualityStatistics:
         self._report_coll = mongo_client["manager"]["quality_report"]
         self._rule_coll = mongo_client["manager"]["quality_rule"]
         self._rule_type = self._rule["rule_type"]
+        before_locals = locals().copy()
         exec(self._rule["rule_content"])
-        local_vars = locals()
+        after_locals = locals().copy()
+        for field in set(after_locals.keys()) - set(before_locals.keys()):
+            globals().update({field: after_locals[field]})
         if self._rule_type == "function":
-            self._functions = {func_name: local_vars["valid_" + func_name] for func_name in self._rule["rule_functions"]}
+            self._functions = {func_name: after_locals["valid_" + func_name] for func_name in self._rule["rule_functions"]}
         else:
-            rule_class = local_vars.get(self._rule["rule_class"])
+            rule_class = after_locals.get(self._rule["rule_class"])
             self._functions = {func_name: getattr(rule_class, "valid_" + func_name) for func_name in self._rule["rule_functions"]
                                if getattr(rule_class, "valid_" + func_name, None)}
         self._stats = {
