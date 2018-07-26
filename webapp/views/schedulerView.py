@@ -88,7 +88,7 @@ def scheduler_log_upload_process():
 @session_load("scheduler_f_process")
 def scheduler_log_dump_process():
     info = {"count": 5}
-    coll = mongo_client['360_rawdata']['sync_log']
+    coll = mongo_client['manager']['stream_sync_log']
     start_time_list = coll.find().sort("created_time", -1).limit(5)
     start_time_list = [i for i in start_time_list]
     return render_template("scheduler/result_page3.html", info=info, records=start_time_list)
