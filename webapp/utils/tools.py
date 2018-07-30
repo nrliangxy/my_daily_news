@@ -3,7 +3,7 @@ import time
 import base64
 from flask import request, redirect, url_for
 from flask import jsonify, make_response, session
-
+from collections import Counter
 
 def make_succeed_resp(message="success", status_code=200, **kwargs):
     return make_response(jsonify(response_code=1, message=message, **kwargs), status_code)
@@ -72,3 +72,18 @@ def session_load(load):
         return decorated_fn
     return decorated
 
+
+#时间字符串转化为时间戳  time_str:"2013-10-10 23:40:00"
+def to_timestamp(time_str):
+    timeArray = time.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+    timeStamp = int(time.mktime(timeArray))
+    return timeStamp
+
+#检查输入的时间字符串是否符合标准
+def check_time(time_str):
+    ts = Counter(time_str)
+    str1 = ts.get(':')   #检查字符串中含有的 ： 的数量
+    str2 = ts.get('-')   #检查字符串中含有的 - 的数量
+    if str1 and str1 == 2 and str2 and str1 == 2:
+        return True
+        

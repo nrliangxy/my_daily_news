@@ -4,7 +4,8 @@ from webapp import mongo_client
 from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
 from backend.celery_task import data_quality_valid
-
+from webapp.utils.tools import to_timestamp, check_time
+from collections import *
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
 
 
@@ -134,6 +135,24 @@ def report_export(rule_name):
 @quality_bp.route("/health_check", methods=["GET", "POST"])
 @session_load("quality")
 def health_check():
+    r = [
+                {"$sort": {"data_status": 1}},
+                {
+                    "$group": {
+                        "_id": "$data_status",
+                        "count": {"$sum": 1},
+                    }
+                }
+            ]
+    time1 = request.form.get('data_time1')
+    time2 = request.form.get('data_time2')
+    if time1 and check_time(time1):
+        time1_stamp = to_timestamp(time1)
+        r.insert(1, {"$match": {"updated_ts": {"$gte": time1_stamp}}})
+    if time2 and check_time(time2):
+        time2_stamp = to_timestamp(time2)
+        r.insert(1, {"$match": {"updated_ts": {"$lt": time2_stamp}}})
+    
     data_type = request.form.get("data_type")
     data_type_list = mongo_client["360_etl"].collection_names()
     if data_type is None:
@@ -143,15 +162,8 @@ def health_check():
         return "data type is not exists"
     if request.method == "POST":
         try:
-            check_rows = mongo_client["360_etl"][data_type].aggregate([
-                {"$sort": {"data_status": 1}},
-                {
-                    "$group": {
-                        "_id": "$data_status",
-                        "count": {"$sum": 1}
-                    }
-                }
-            ], allowDiskUse=True)
+            check_rows = mongo_client["360_etl"][data_type].aggregate(r, allowDiskUse=True)
+            print(r)
         except Exception as e:
             return jsonify(status=0, msg="查询失败")
         check_rows = [[row["count"], row["_id"]] for row in check_rows]
