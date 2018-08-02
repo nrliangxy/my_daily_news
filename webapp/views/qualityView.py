@@ -1,11 +1,11 @@
+import time
 from urllib.parse import quote
 from flask import Blueprint, render_template, request, jsonify, current_app, send_from_directory
 from webapp import mongo_client
 from webapp.utils.tools import session_load
 from webapp.utils.code_analysis import CodeAnalyzer
 from backend.celery_task import data_quality_valid
-from webapp.utils.tools import to_timestamp, check_time
-from collections import *
+
 quality_bp = Blueprint("quality_view", __name__, url_prefix="/quality")
 
 
@@ -135,24 +135,36 @@ def report_export(rule_name):
 @quality_bp.route("/health_check", methods=["GET", "POST"])
 @session_load("quality")
 def health_check():
-    r = [
-                {"$sort": {"data_status": 1}},
-                {
-                    "$group": {
-                        "_id": "$data_status",
-                        "count": {"$sum": 1},
-                    }
-                }
-            ]
-    time1 = request.form.get('data_time1')
-    time2 = request.form.get('data_time2')
-    if time1 and check_time(time1):
-        time1_stamp = to_timestamp(time1)
-        r.insert(1, {"$match": {"updated_ts": {"$gte": time1_stamp}}})
-    if time2 and check_time(time2):
-        time2_stamp = to_timestamp(time2)
-        r.insert(1, {"$match": {"updated_ts": {"$lt": time2_stamp}}})
-    
+    sort_clause = [{"$sort": {"data_status": 1}}]
+    group_clause = [{
+        "$group": {
+            "_id": "$data_status",
+            "count": {"$sum": 1},
+        }
+    }]
+    match_clause = []
+    if request.form.get("data_time1"):
+        try:
+            assert len(request.form["data_time1"])
+            time1 = int(request.form["data_time1"])
+            assert time1 >= 1483200000
+        except Exception as e:
+            return error_field_check_403(f"开始时间错误(必须为时间戳，且大于1483200000):{e}")
+        else:
+            match_clause.append({"$match": {"updated_ts": {"$gte": time1}}})
+    if request.form.get("data_time2"):
+        try:
+            assert len(request.form["data_time2"])
+            time2 = int(request.form["data_time2"])
+            assert time2 <= int(time.time())
+        except Exception as e:
+            return error_field_check_403(f"结束时间错误(必须小于当天时间):{e}")
+        else:
+            match_clause.append({"$match": {"updated_ts": {"$lte": time2}}})
+    if match_clause:
+        aggregate_query = match_clause + group_clause
+    else:
+        aggregate_query = sort_clause + group_clause
     data_type = request.form.get("data_type")
     data_type_list = mongo_client["360_etl"].collection_names()
     if data_type is None:
@@ -162,8 +174,7 @@ def health_check():
         return "data type is not exists"
     if request.method == "POST":
         try:
-            check_rows = mongo_client["360_etl"][data_type].aggregate(r, allowDiskUse=True)
-            print(r)
+            check_rows = mongo_client["360_etl"][data_type].aggregate(aggregate_query, allowDiskUse=True)
         except Exception as e:
             return jsonify(status=0, msg="查询失败")
         check_rows = [[row["count"], row["_id"]] for row in check_rows]
