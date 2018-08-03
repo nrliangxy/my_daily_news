@@ -6,20 +6,35 @@
 {% block content_body %}
     <div class="container-fluid">
         <div class="row">
-            ....
-{#            <div class="col-md-4">#}
-{#                <div class="card mb-3">#}
-{#                    <img class="card-img-top" src="" alt="Card image cap">#}
-{#                    <div class="card-body">#}
-{#                        <h4 class="card-title">Card title</h4>#}
-{#                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to#}
-{#                            additional content. This content is a little bit longer.</p>#}
-{#                        <p class="card-text">#}
-{#                            <small class="text-muted">Last updated 3 mins ago</small>#}
-{#                        </p>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <a href="http://192.168.44.101:3000/"><img width="" class="card-img-top"
+                                                               src="{{ url_for("static", filename="assets/img/bqb/lmt.jpg") }}"
+                                                               alt="Card image cap"></a>
+                    <div class="card-body">
+                        <h4 class="card-title">监控</h4>
+                        <a href="http://192.168.44.101:3000/"><p class="card-text">oんττρ://㈠九2.㈠陆8.肆肆.㈠零㈠:3零零零/﹎</p>
+                        </a>
+                        <p class="card-text">
+                            <small class="text-muted">Last updated 1 mins ago</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <a href="http://192.168.44.101:9001/"><img class="card-img-top"
+                                                               src="{{ url_for("static", filename="assets/img/bqb/zmfs.jpg") }}"
+                                                               alt="Card image cap"></a>
+                    <div class="card-body">
+                        <h4 class="card-title">Kafka</h4>
+                        <a href="http://192.168.44.101:9001/"><p class="card-text">http://192.168.44.101:9001/</p></a>
+                        <p class="card-text">
+                            <small class="text-muted">Last updated 2 mins ago</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
