@@ -146,12 +146,12 @@ def health_check():
             ]
     time1 = request.form.get('data_time1')
     time2 = request.form.get('data_time2')
-    if time1 and check_time(time1):
-        time1_stamp = to_timestamp(time1)
-        r.insert(1, {"$match": {"updated_ts": {"$gte": time1_stamp}}})
-    if time2 and check_time(time2):
-        time2_stamp = to_timestamp(time2)
-        r.insert(1, {"$match": {"updated_ts": {"$lt": time2_stamp}}})
+    if time1:
+        # time1_stamp = to_timestamp(time1)
+        r.insert(1, {"$match": {"updated_ts": {"$gte": time1}}})
+    if time2:
+        # time2_stamp = to_timestamp(time2)
+        r.insert(1, {"$match": {"updated_ts": {"$lt": time2}}})
     
     data_type = request.form.get("data_type")
     data_type_list = mongo_client["360_etl"].collection_names()
