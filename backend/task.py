@@ -117,7 +117,7 @@ class SchedulerTaskManager:
     def check_pid(self, pid):
         try:
             os.kill(pid, 0)
-        except OSError:
+        except Exception:
             return False
         else:
             return True
