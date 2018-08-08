@@ -19,7 +19,7 @@ class Notification(Resource):
         self.parser = reqparse.RequestParser()
         self.parser.add_argument('data')
         self.parser.add_argument('url')
-        self.robot_api = None
+        self.robot_api = "https://oapi.dingtalk.com/robot/send?access_token=9219c3463ad5a349650da5ecbe73ba2ffa5487ff36ad6cd8223ca668f305f9ee"
         self.data = None
     
     def post(self):
@@ -27,9 +27,9 @@ class Notification(Resource):
         data = args.get('data')
         url = args.get('url')
         notice_obj = notice(data, url)
-        self.robot_api = notice_obj.url
-        if self.robot_api:
-            self.remind(data)
+        if notice_obj.url:
+            self.robot_api = notice_obj.url
+        self.remind(data)
 
     def remind(self, msg):
         data = {
