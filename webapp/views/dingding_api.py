@@ -47,7 +47,7 @@ class Notification(Resource):
 
 
     
-api.add_resource(Notification, '/api/v1.0/notification')
+api.add_resource(Notification, '/api/v1/notification')
 
 
 
