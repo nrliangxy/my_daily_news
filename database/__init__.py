@@ -3,9 +3,10 @@ from mongoengine import *
 from urllib.parse import quote_plus
 
 
-def create_default_client(username="etl_user", password="etl360"):
-    uri = "mongodb://%s:%s@%s" % (
-        quote_plus(username), quote_plus(password), "192.168.44.101:27100")
+def create_default_client():
+    uri = "mongodb://192.168.44.151:27017"
+    # uri = "mongodb://localhost:27017"
+
     return pymongo.MongoClient(uri)
 
 

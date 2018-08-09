@@ -37,19 +37,19 @@
                     <a class="dropdown-item" href="/quality/health_check">healthcheck报告</a>
                 </div>
                 </li>
-                {% if session['load'] in ["scheduler", "scheduler_f", "scheduler_f_process"] %}
+                {% if session['load'] in ["scheduler", "china_news", "scheduler_f", "scheduler_f_process"] %}
                     <li class="nav-item dropdown active">
                         {% else %}
                     <li class="nav-item dropdown">
                 {% endif %}
                 <a class="nav-link" href="#" id="schedulerMenu" data-toggle="dropdown">
                     <i class="material-icons">schedule</i>
-                    <p>计划任务</p>
+                    <p>新闻</p>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="schedulerMenu">
                     <a class="dropdown-item" href="/scheduler/index">计划任务</a>
-                    <a class="dropdown-item" href="/scheduler/scheduler_log">计划任务日志</a>
-                    <a class="dropdown-item" href="/scheduler/scheduler_log_upload_process">上传同步日志</a>
+                    <a class="dropdown-item" href="/scheduler/scheduler_log">财经新闻</a>
+                    <a class="dropdown-item" href="/scheduler/china">中国财经</a>
                     <a class="dropdown-item" href="/scheduler/scheduler_log_dump_process">下载同步日志</a>
                 </div>
                 </li>

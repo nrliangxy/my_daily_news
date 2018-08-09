@@ -44,44 +44,20 @@
                                 <table class="table table-hover">
                                     <thead class=" text-primary">
                                     <th>
-                                        ID
+                                        {{ info["title"] | capitalize() }}
                                     </th>
                                     <th>
-                                        START_TIME
-                                    </th>
-                                    <th>
-                                        {{ info["other_field"] | capitalize() }}
-                                    </th>
-                                    <th>
-                                        {{ info["status"] | capitalize() }}
-                                    </th>
-                                    <th>
-                                        file_path
-                                    </th>
-                                    <th>
-                                        pid_num
+                                        {{ info["source_url"] | capitalize() }}
                                     </th>
                                     </thead>
                                     <tbody>
                                     {% for r in records %}
                                         <tr>
                                             <td>
-                                                {{ r["task_id"] }}
+                                                {{ r["title"] }}
                                             </td>
                                             <td>
-                                                {{ r["start_time"] }}
-                                            </td>
-                                            <td>
-                                                {{ r["task_name"] }}
-                                            </td>
-                                            <td>
-                                                {{ r["status"]}}
-                                            </td>
-                                            <td>
-                                                {{ r["task_file_path"]}}
-                                            </td>
-                                            <td>
-                                                {{ r["pid_num"]}}
+                                                {{ r["source_url"] }}
                                             </td>
                                         </tr>
                                     {% endfor %}

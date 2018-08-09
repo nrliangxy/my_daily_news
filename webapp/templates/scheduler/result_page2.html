@@ -44,38 +44,21 @@
                                 <table class="table table-hover">
                                     <thead class=" text-primary">
                                     <th>
-                                        id
+                                        {{ info["title"] | capitalize() }}
                                     </th>
                                     <th>
-                                        db_table
-                                    </th>
-                                    <th>
-                                        start_ts
-                                    </th>
-                                    <th>
-                                        end_ts
-                                    </th>
-                                    <th>
-                                        status
+                                        {{ info["date"] | capitalize() }}
                                     </th>
                                     </thead>
                                     <tbody>
                                     {% for r in records %}
                                         <tr>
                                             <td>
-                                                {{ r["_id"] }}
+                                                <a href="{{ r['url'] }}"> {{ r["title"] }} <a/>
                                             </td>
+
                                             <td>
-                                                {{ r["db_table"] }}
-                                            </td>
-                                            <td>
-                                                {{ r["start_ts"] }}
-                                            </td>
-                                            <td>
-                                                {{ r["end_ts"]}}
-                                            </td>
-                                            <td>
-                                                {{ r["status"]}}
+                                                {{ r["date"] }}
                                             </td>
                                         </tr>
                                     {% endfor %}

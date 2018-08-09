@@ -23,25 +23,6 @@ def error_field_check_403(error_msg):
     return render_template("error/403.html", error_msg=error_msg)
 
 
-@sche_bp.route('/index', methods=["GET", "POST"])
-@session_load("scheduler")
-def scheduler_index():
-    tasks = bg_manager.list_task()
-    return render_template("scheduler/index.html", bg_tasks=tasks)
-
-
-@sche_bp.route('/scheduler_result', methods=["GET", "POST"])
-@session_load("scheduler")
-def scheduler_result():
-    show_live_process()
-    form_data = {k: v for k, v in request.form.items() if v is not None and len(v) > 0}
-    if form_data:
-        r.lpush("form_data2", form_data)
-        # r.publish('form_data', form_data)
-        name = form_data.get('name')
-        records, info = check_db(name)
-        return render_template("scheduler/result_page.html", info=info, records=records)
-       
 
 @sche_bp.route('/scheduler_log', methods=["GET", "POST"])
 @session_load("scheduler_f")
@@ -59,29 +40,17 @@ def check_pid(pid):
         return True
 
 
-def check_records(items):
-    for i in items:
-        p_num = i['pid_num']
-        if check_pid(p_num):
-            p = psutil.Process(p_num)
-            if p.status() == STATUS_ZOMBIE:
-                SmallTask.kill_process_by_pid(p_num)
-                i['status'] = 'stop'
-            else:
-                i['status'] = 'RUNNING'
-        else:
-            i['status'] = 'stop'
-    return items
 
 
-@sche_bp.route('/scheduler_log_upload_process', methods=["GET", "POST"])
-@session_load("scheduler_f_process")
+@sche_bp.route('/china', methods=["GET", "POST"])
+@session_load("china_news")
 def scheduler_log_upload_process():
-    info = {"count": 5}
-    coll = mongo_client['manager']['fetch_task']
-    start_time_list = coll.find().sort("start_ts", -1).limit(5)
+    info = {"count": 10, "title": 'title', "date": "date"}
+    coll = mongo_client['spider-file']['china_news']
+    start_time_list = coll.find().sort("created_ts", -1).limit(10)
     process_records = [chang_r(i) for i in start_time_list]
-    return render_template("scheduler/result_page2.html", info=info, records=process_records)
+    raw_data = [i['raw_data'] for i in process_records]
+    return render_template("scheduler/result_page2.html", info=info, records=raw_data)
 
 
 @sche_bp.route('/scheduler_log_dump_process', methods=["GET", "POST"])
@@ -111,8 +80,8 @@ def timestamp_datetime(value):
 
 
 def chang_r(item):
-    item['start_ts'] = timestamp_datetime(item['start_ts'])
-    item['end_ts'] = timestamp_datetime(item['end_ts'])
+    item['start_ts'] = timestamp_datetime(item['created_ts'])
+    # item['end_ts'] = timestamp_datetime(item['end_ts'])
     return item
 
 
@@ -120,26 +89,25 @@ def chang_r(item):
 
 
 
-def check_db(name=None):
+def check_db():
     records = [i for i in database.find()]
-    records = check_records(records)
-    for i in records:
-        database.update({'task_name': i['task_name']}, {'$set': {'status': i['status']}})
+    # for i in records:
+    #     database.update({'task_name': i['task_name']}, {'$set': {'status': i['status']}})
     # database.remove()
     # database.insert_many(records)
     # records = [
     #     {"task_id": task.task_id, "task_name": task.task_name, "start_time": task.start_time, "status": task.status,
     #      "task_file_path": task.task_file_path, "pid_num": task.pid_num} for task in TaskLog.objects]
-    if name:
-        for i in records:
-            if i['task_name'] == name:
-                n = records.index(i)
-                temp = records.pop(n)
-                records.insert(0, temp)
+    # if name:
+    #     for i in records:
+    #         if i['task_name'] == name:
+    #             n = records.index(i)
+    #             temp = records.pop(n)
+    #             records.insert(0, temp)
     info = {
         "count": len(records) or 0,
-        "other_field": "task_name",
-        "status": "status"
+        "other_field": "title",
+        "status": "source_url"
     }
     return records, info
 
