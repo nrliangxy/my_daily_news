@@ -38,11 +38,9 @@ def create_default_app(profile=False, debug=False):
         app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
     # 初始化蓝图
     from webapp.views.indexView import index_bp
-    from webapp.views.qualityView import quality_bp
     from webapp.views.schedulerView import sche_bp
     from webapp.views.dingding_api import dingding_bp
     app.register_blueprint(index_bp)
-    app.register_blueprint(quality_bp)
     app.register_blueprint(sche_bp)
     app.register_blueprint(dingding_bp)
 
