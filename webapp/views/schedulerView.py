@@ -9,6 +9,7 @@ import psutil
 from psutil import STATUS_ZOMBIE
 from collections import namedtuple
 import redis
+
 pool = redis.ConnectionPool(host='192.168.44.101', port=6379, decode_responses=True)
 # r = redis.Redis(host='192.168.44.101', port=6379)
 
@@ -23,14 +24,13 @@ def error_field_check_403(error_msg):
     return render_template("error/403.html", error_msg=error_msg)
 
 
-
 @sche_bp.route('/scheduler_log', methods=["GET", "POST"])
 @session_load("scheduler_f")
 def scheduler_log():
     records, info = check_db()
     return render_template("scheduler/result_page.html", info=info, records=records)
 
-    
+
 def check_pid(pid):
     try:
         os.kill(pid, 0)
@@ -40,27 +40,34 @@ def check_pid(pid):
         return True
 
 
+def check_process(category):
+    info = {"count": 10, "title": 'title', "date": "date"}
+    coll = mongo_client['spider-file']['china_news']
+    start_time_list = coll.find({'category': category}).sort("created_ts", -1).limit(10)
+    process_records = [chang_r(i) for i in start_time_list]
+    return info, process_records
 
 
 @sche_bp.route('/china', methods=["GET", "POST"])
 @session_load("china_news")
 def scheduler_log_upload_process():
-    info = {"count": 10, "title": 'title', "date": "date"}
-    coll = mongo_client['spider-file']['china_news']
-    start_time_list = coll.find().sort("created_ts", -1).limit(10)
-    process_records = [chang_r(i) for i in start_time_list]
+    # info = {"count": 10, "title": 'title', "date": "date"}
+    # coll = mongo_client['spider-file']['china_news']
+    # start_time_list = coll.find().sort("created_ts", -1).limit(10)
+    # process_records = [chang_r(i) for i in start_time_list]
+    info, process_records = check_process("china")
+    info.update(dict(scheme="China news"))
     raw_data = [i['raw_data'] for i in process_records]
     return render_template("scheduler/result_page2.html", info=info, records=raw_data)
 
 
-@sche_bp.route('/scheduler_log_dump_process', methods=["GET", "POST"])
-@session_load("scheduler_f_process")
+@sche_bp.route('/internationalbusiness', methods=["GET", "POST"])
+@session_load("internationalbusiness_news")
 def scheduler_log_dump_process():
-    info = {"count": 5}
-    coll = mongo_client['manager']['stream_sync_log']
-    start_time_list = coll.find().sort("created_time", -1).limit(5)
-    start_time_list = [i for i in start_time_list]
-    return render_template("scheduler/result_page3.html", info=info, records=start_time_list)
+    info, process_records = check_process("internationalbusiness")
+    info.update(dict(scheme="International news"))
+    raw_data = [i['raw_data'] for i in process_records]
+    return render_template("scheduler/result_page2.html", info=info, records=raw_data)
 
 
 def show_task_name():
@@ -83,10 +90,6 @@ def chang_r(item):
     item['start_ts'] = timestamp_datetime(item['created_ts'])
     # item['end_ts'] = timestamp_datetime(item['end_ts'])
     return item
-
-
-
-
 
 
 def check_db():
@@ -113,7 +116,6 @@ def check_db():
 
 
 class SmallTask(object):
-    
     @classmethod
     def kill_process_by_pid(cls, pid):
         while True:
@@ -123,13 +125,13 @@ class SmallTask(object):
                 continue
             else:
                 break
-                
+    
     @classmethod
     def reap_children(cls, children_pid: list, timeout=3):
         """Tries hard to terminate and ultimately kill all the children of this process."""
         msg = "failed"
         print(children_pid)
-        print('='*77)
+        print('=' * 77)
         
         def on_terminate(proc):
             msg = "process {} terminated with exit code {}".format(proc, proc.returncode)
